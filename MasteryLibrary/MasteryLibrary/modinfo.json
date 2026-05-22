@@ -1,0 +1,15 @@
+{
+  "$schema": "https://moddbcdn.vintagestory.at/schema/modinfo.latest.json",
+  "type": "Code",
+  "modid": "masterylibrary",
+  "name": "MasteryLibrary",
+  "authors": [
+    "Unknown"
+  ],
+  "description": "To be added",
+  "version": "1.0.0",
+  "dependencies": {
+    "game": "1.21.0",
+    "vsimgui": "*"
+  }
+}

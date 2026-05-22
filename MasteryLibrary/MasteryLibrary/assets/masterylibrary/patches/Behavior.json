@@ -1,0 +1,42 @@
+[
+  {
+    "file": "game:entities/humanoid/player.json",
+    "op": "addmerge",
+    "path": "/server/behaviors",
+    "value": [
+      {
+        "code": "PlayerMasteries"
+      }
+    ]
+  },
+  {
+    "file": "game:entities/humanoid/player.json",
+    "op": "addmerge",
+    "path": "/client/behaviors",
+    "value": [
+      {
+        "code": "PlayerMasteries"
+      }
+    ]
+  },
+  {
+    "file": "game:entities/humanoid/player.json",
+    "op": "addmerge",
+    "path": "/server/behaviors",
+    "value": [
+      {
+        "code": "EntityEffects"
+      }
+    ]
+  },
+  {
+    "file": "game:entities/humanoid/player.json",
+    "op": "addmerge",
+    "path": "/client/behaviors",
+    "value": [
+      {
+        "code": "EntityEffects"
+      }
+    ]
+  }
+]

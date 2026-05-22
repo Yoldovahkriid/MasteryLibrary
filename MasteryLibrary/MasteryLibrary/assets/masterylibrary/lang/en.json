@@ -1,0 +1,49 @@
+{
+  "masterylibrary:window-title": "M A S T E R I E S",
+
+  "masterylibrary:error-no-mastery-data": "No mastery data found for this character. Try reconnecting",
+
+  "masterylibrary:overview-level-label": "Level",
+  "masterylibrary:overview-mastery-points-label": "Mastery Points",
+  "masterylibrary:overview-xp-format": "{0} / {1} XP",
+
+  "masterylibrary:tab-active-skills": "Active Skills",
+
+  "masterylibrary:equip-hint": "Drag skills from the left panel into a slot to equip them.",
+  "masterylibrary:equip-panel-unlocked": "Unlocked Active Skills",
+  "masterylibrary:equip-panel-equipped": "Equipped Skills",
+  "masterylibrary:equip-no-actives": "No active skills unlocked yet.",
+  "masterylibrary:equip-drag-hint": "Drag to equip  ✦  Right-click a slot to unequip  ✦  Esc to cancel drag",
+  "masterylibrary:equip-drag-release-hint": "Release over a slot to equip",
+  "masterylibrary:equip-status-equipped": "Equipped",
+  "masterylibrary:equip-status-available": "Available",
+  "masterylibrary:equip-slot-empty": "Empty slot — drag a skill here",
+  "masterylibrary:equip-slot-unknown": "Unknown skill",
+
+  "masterylibrary:progress-rank-label": "Rank",
+  "masterylibrary:progress-level-format": "{0} / {1}",
+  "masterylibrary:progress-rankup-button": "+",
+  "masterylibrary:progress-maxed-button": "Maxed",
+
+  "masterylibrary:skilltree-tier-header": "Rank {0}",
+
+  "masterylibrary:skill-tooltip-unique-tag": "✦ Unique Skill",
+  "masterylibrary:skill-tooltip-unique-no-upgrade": "Unique skills cannot be upgraded further.",
+  "masterylibrary:skill-tooltip-mastered": "Mastered",
+  "masterylibrary:skill-tooltip-locked-rank": "Requires mastery rank {0}",
+  "masterylibrary:skill-tooltip-locked-prereqs": "Missing prerequisites:",
+  "masterylibrary:skill-tooltip-required-rank": "Requires mastery rank {0}",
+  "masterylibrary:skill-unique-label": "Unique",
+  "masterylibrary:skill-level-format": "{0} / {1}",
+  "masterylibrary:skill-type-active": "Active Skill",
+  "masterylibrary:skill-type-passive": "Passive Skill",
+  "masterylibrary:skill-cooldown": "Cooldown: {0}s",
+
+  "masterylibrary:details-next-level-label": "Next level:",
+  "masterylib:hotkey-open-mastery-menu": "Open mastery window",
+  "masterylib:hotkey-ui-customize": "Customize MasteryLib UI",
+  "masterylib:hotkey-toggle-hotbar": "Toggle Ability Hotbar Visibility",
+  "masterylib:hotkey-use-active-skill": "Use Skill in Slot {0}",
+
+  "masterylib:gridrecipe-requiresskill": "Requires Skill: {0} (Level: {1})"
+}

@@ -1,0 +1,111 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "VSImGui/0.0.7": {
+        "dependencies": {
+          "VSImGui_DebugTools": "0.0.5",
+          "ImGui.NET": "1.89.9.2",
+          "ImGuiController_OpenTK": "1.0.0.0",
+          "ImGuizmo.NET": "1.61.0.0",
+          "ImNodes.NET": "0.3.0.0",
+          "ImPlot.NET": "0.8.0.0"
+        },
+        "runtime": {
+          "VSImGui.dll": {}
+        }
+      },
+      "VSImGui_DebugTools/0.0.5": {
+        "runtime": {
+          "lib/net7.0/VSImGui_DebugTools.dll": {
+            "assemblyVersion": "0.0.5.0",
+            "fileVersion": "0.0.5.0"
+          }
+        }
+      },
+      "ImGui.NET/1.89.9.2": {
+        "runtime": {
+          "ImGui.NET.dll": {
+            "assemblyVersion": "1.89.9.2",
+            "fileVersion": "1.89.9.2"
+          }
+        }
+      },
+      "ImGuiController_OpenTK/1.0.0.0": {
+        "runtime": {
+          "ImGuiController_OpenTK.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ImGuizmo.NET/1.61.0.0": {
+        "runtime": {
+          "ImGuizmo.NET.dll": {
+            "assemblyVersion": "1.61.0.0",
+            "fileVersion": "1.61.0.0"
+          }
+        }
+      },
+      "ImNodes.NET/0.3.0.0": {
+        "runtime": {
+          "ImNodes.NET.dll": {
+            "assemblyVersion": "0.3.0.0",
+            "fileVersion": "0.3.0.0"
+          }
+        }
+      },
+      "ImPlot.NET/0.8.0.0": {
+        "runtime": {
+          "ImPlot.NET.dll": {
+            "assemblyVersion": "0.8.0.0",
+            "fileVersion": "0.8.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "VSImGui/0.0.7": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "VSImGui_DebugTools/0.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Tqe9ZqXf8zBr+ItDnftfxApeRsD4/P/CuL401I4O9RKSuqd+n3BaU9Ac7ajm11WSRqhz/oIqeGLqgb1CQ9kMmA==",
+      "path": "vsimgui_debugtools/0.0.5",
+      "hashPath": "vsimgui_debugtools.0.0.5.nupkg.sha512"
+    },
+    "ImGui.NET/1.89.9.2": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ImGuiController_OpenTK/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ImGuizmo.NET/1.61.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ImNodes.NET/0.3.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ImPlot.NET/0.8.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

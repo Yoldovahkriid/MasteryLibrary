@@ -1,0 +1,17 @@
+{
+    "type": "code",
+    "name": "Dear ImGui",
+    "modid": "vsimgui",
+    "version": "1.2.2",
+
+    "description": "Brings famous immediate mode GUI to Vintage Story",
+    "authors": [ "Maltiez" ],
+
+    "dependencies": {
+        
+    },
+    
+    "side" : "Universal",
+	  "requiredOnClient": true,
+	  "requiredOnServer": false
+}

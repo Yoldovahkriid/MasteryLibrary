@@ -1,0 +1,1024 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VSImGui</name>
+    </assembly>
+    <members>
+        <member name="T:VSImGui.ImGuiModSystem">
+            <summary>
+            Initializes ImGui integration into VS and provides interface for drawing ImGui dialogs
+            </summary>
+        </member>
+        <member name="P:VSImGui.ImGuiModSystem.DefaultStyle">
+            <summary>
+            Style used pushed after loading as default
+            </summary>
+        </member>
+        <member name="E:VSImGui.ImGuiModSystem.Draw">
+            <summary>
+            Draw callback that should contain ImGui windows with widgets.<br/>
+            Each imgui 'Begin' method should be closed with 'End' inside callback. Same for 'Push' and 'Pop', and using Styles.
+            </summary>
+        </member>
+        <member name="M:VSImGui.ImGuiModSystem.Show">
+            <summary>
+            Shows all currently opened ImGui windows in main window<br/>
+            Tries to open VS dialog that is used to integrate ImGui into VS.
+            </summary>
+        </member>
+        <member name="E:VSImGui.ImGuiModSystem.Closed">
+            <summary>
+            Is called when all ImGui windows are closed by 'Esc' button or hotkey.
+            </summary>
+        </member>
+        <member name="T:VSImGui.API.CallbackGUIStatus">
+            <summary>
+            Is used to determine behavior of vintage story GUI dialog that is used for layering and managing inputs
+            </summary>
+        </member>
+        <member name="F:VSImGui.API.CallbackGUIStatus.Closed">
+            <summary>
+            All ImGUI windows in callback are closed
+            </summary>
+        </member>
+        <member name="F:VSImGui.API.CallbackGUIStatus.GrabMouse">
+            <summary>
+            Require cursor to shot and lock camera
+            </summary>
+        </member>
+        <member name="F:VSImGui.API.CallbackGUIStatus.DontGrabMouse">
+            <summary>
+            Do not require cursor to shot and lock camera (works only with immersive mouse mode)
+            </summary>
+        </member>
+        <member name="T:VSImGui.API.DrawCallbackDelegate">
+            <summary>
+            Should contain all the ImGui draw related calls and return status of all ImGui windows managed by this callback
+            </summary>
+            <param name="deltaSeconds">Straight from the Render call to VS GUI dialog used to manage ImGui rendering and inputs</param>
+            <returns>Aggregated status of all ImGui windows managed by this callback</returns>
+        </member>
+        <member name="T:VSImGui.API.IImGuiRenderer">
+            <summary>
+            Provides a way to interact with ImGui integration into VS
+            </summary>
+        </member>
+        <member name="E:VSImGui.API.IImGuiRenderer.Draw">
+            <summary>
+            Should contain all the ImGui calls to draw windows and widgets.<br/>
+            Each imgui 'Begin' method should be closed with 'End' inside callback. Same for 'Push' and 'Pop', and using Styles.
+            </summary>
+        </member>
+        <member name="E:VSImGui.API.IImGuiRenderer.Closed">
+            <summary>
+            Invoked when player tries to close all ImGui windows at once (pressing escape or using hotkey)
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.IImGuiRenderer.DefaultStyle">
+            <summary>
+            Style used for all ImGui windows and widgets be default
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.IImGuiRenderer.Show">
+            <summary>
+            Forces to show all ImGui windows, should be called when new ImGui window is created so it will be shown and be able to capture inputs
+            </summary>
+        </member>
+        <member name="T:VSImGui.API.ImGuiDialogWindow">
+            <summary>
+            Same as <see cref="T:VSImGui.API.ImGuiDialogBase"/> but also handles ImGui window.<br/>
+            You should not call <see cref="M:ImGuiNET.ImGui.Begin(System.ReadOnlySpan{System.Char})"/> and <see cref="M:ImGuiNET.ImGui.End"/> methods in <see cref="M:VSImGui.API.ImGuiDialogBase.OnDraw"/>.
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogWindow.WindowTitle">
+            <summary>
+            Displayed window title
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogWindow.WindowId">
+            <summary>
+            Depending on whether title included into id (defined in constructor argument) or not pair <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> + <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowTitle"/> or just <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> should be unique among all ImGui windows.<br/>
+            ImGui window position and size stored in imgui.ini are mapped per window id, so if you will have same id between game sessions, mentioned window parameters will persist.
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogWindow.TitleInfo">
+            <summary>
+            Additional info displayed in title that do not affect window id
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogWindow.Flags">
+            <summary>
+            Flags supplied to <see cref="M:ImGuiNET.ImGui.Begin(System.ReadOnlySpan{System.Char})"/>.
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogWindow.#ctor(Vintagestory.API.Client.ICoreClientAPI,System.String,System.String,System.Boolean,ImGuiNET.ImGuiWindowFlags)">
+            <summary>
+            Constructs ids and saves flags
+            </summary>
+            <param name="api"></param>
+            <param name="windowTitle">Displayed title.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="windowId">Window id.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="includeTitleIntoId">Whether title is part of window id.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="flags">Flags supplied to <see cref="M:ImGuiNET.ImGui.Begin(System.ReadOnlySpan{System.Char})"/>.</param>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogWindow.#ctor(Vintagestory.API.Client.ICoreClientAPI,ImGuiNET.ImGuiWindowFlags,System.String,System.String,System.Boolean)">
+            <summary>
+            Constructs ids and saves flags
+            </summary>
+            <param name="api"></param>
+            <param name="windowTitle">Displayed title.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="windowId">Window id.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="includeTitleIntoId">Whether title is part of window id.<br/> See <see cref="P:VSImGui.API.ImGuiDialogWindow.WindowId"/> documentation for more info.</param>
+            <param name="flags">Flags supplied to <see cref="M:ImGuiNET.ImGui.Begin(System.ReadOnlySpan{System.Char})"/>.</param>
+        </member>
+        <member name="T:VSImGui.API.ImGuiDialogBase">
+            <summary>
+            Convenience class for drawing ImGui dialogs.<br/>
+            It handles return value required from Draw method and adds/removes itself from drawing callback list on construction/disposing.<br/>
+            Also handles close event <see cref="E:VSImGui.ImGuiModSystem.Closed"/> and calls show method <see cref="M:VSImGui.ImGuiModSystem.Show"/>.
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.Close">
+            <summary>
+            Hides dialog
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.Open">
+            <summary>
+            Shows dialog
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.#ctor(Vintagestory.API.Client.ICoreClientAPI)">
+            <summary>
+            Adds itself to ImGui draw callbacks list.
+            </summary>
+            <param name="api"></param>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogBase.Opened">
+            <summary>
+            Whether dialog is shown. Use <see cref="M:VSImGui.API.ImGuiDialogBase.Open"/> and <see cref="M:VSImGui.API.ImGuiDialogBase.Close"/> methods to show/hide dialog.
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.ImGuiDialogBase.GrabMouse">
+            <summary>
+            Whether mouse should be unlocked in Immersive Mouse mode.
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.OnDraw">
+            <summary>
+            Your <see cref="T:ImGuiNET.ImGui"/> methods to begin windows and draw widgets should be here.
+            </summary>
+            <returns>Whether dialog should be closed.</returns>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.OnClose">
+            <summary>
+            Called before dialog is closed.
+            </summary>
+            <returns>Whether dialog should be closed.</returns>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.OnOpen">
+            <summary>
+            Called before dialog is opened.
+            </summary>
+            <returns>Whether dialog should be opened.</returns>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.Draw(System.Single)">
+            <summary>
+            Methods supplied to <see cref="E:VSImGui.ImGuiModSystem.Draw"/>.<br/> Should call <see cref="M:VSImGui.API.ImGuiDialogBase.OnDraw"/>.
+            </summary>
+            <param name="deltaSeconds">Time it took to render last frame</param>
+            <returns>Dialog status that indicates if it is closed and if mouse should be grabbed.</returns>
+        </member>
+        <member name="M:VSImGui.API.ImGuiDialogBase.DrawStatus">
+            <summary>
+            Returns dialog status based on <see cref="P:VSImGui.API.ImGuiDialogBase.Opened"/> and <see cref="P:VSImGui.API.ImGuiDialogBase.GrabMouse"/>.
+            </summary>
+            <returns>Dialog status that indicates if it is closed and if mouse should be grabbed.</returns>
+        </member>
+        <member name="T:VSImGui.API.FontManager">
+            <summary>
+            Defines what fonts and sizes of fonts will be loaded 
+            </summary>
+        </member>
+        <member name="T:VSImGui.API.FontManager.FontsLoadingDelegate">
+            <summary>
+            Provides access to fonts and sizes collections that determine what fonts will be loaded. Font atlas is limited, so to many fonts and sizes might cause problems.
+            </summary>
+            <param name="fonts">Collection of paths to fonts' files. Add your own fonts here.</param>
+            <param name="sizes">Collection of sizes to generate. Add your sizes here.</param>
+        </member>
+        <member name="E:VSImGui.API.FontManager.BeforeFontsLoaded">
+            <summary>
+            Called right before fonts are loaded
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.FontManager.GetLoadedFonts">
+            <summary>
+            Returns all the loaded fonts
+            </summary>
+            <returns>List of pairs: font name to size</returns>
+        </member>
+        <member name="P:VSImGui.API.FontManager.Sizes">
+            <summary>
+            List of sizes that would be generated for each font
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.FontManager.Fonts">
+            <summary>
+            List of paths to font files that would be loaded
+            </summary>
+        </member>
+        <member name="P:VSImGui.API.FontManager.Loaded">
+            <summary>
+            Maps all combinations of loaded fonts to pointers that hold them and are used to set current font
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.FontManager.Load">
+            <summary>
+            Loads all the fonts for all combinations of font paths and sizes from corresponding collections. Also loads default font.
+            </summary>
+        </member>
+        <member name="F:VSImGui.API.FontManager._defaultFont">
+            <summary>
+            Font that will be loaded and used by default
+            </summary>
+        </member>
+        <member name="F:VSImGui.API.FontManager._defaultSize">
+            <summary>
+            Default font will have this size
+            </summary>
+        </member>
+        <member name="M:VSImGui.API.FontManager.LoadDefault">
+            <summary>
+            Loads and sets defaults font
+            </summary>
+        </member>
+        <member name="T:VSImGui.Controller">
+            <summary>
+            Initializes ImGui, updates inputs for it, manages classes that render ImGui and manage native windows
+            </summary>
+        </member>
+        <member name="M:VSImGui.Controller.#ctor(VSImGui.MainGameWindowWrapper,System.Boolean)">
+            <summary>
+            Initializes ImGui
+            </summary>
+            <param name="window">Main game window wrapped in specialized class</param>
+        </member>
+        <member name="E:VSImGui.Controller.OnWindowMergedIntoMain">
+            <summary>
+            Invoked when secondary window is dragged into main one and destroyed
+            </summary>
+        </member>
+        <member name="M:VSImGui.Controller.Update(System.Single,System.Boolean)">
+            <summary>
+            Updates ImGui inputs and windows parameters
+            </summary>
+            <param name="deltaSeconds">Time it took to render last frame</param>
+            <param name="captureInputs">If ImGUi should capture inputs from main window</param>
+        </member>
+        <member name="M:VSImGui.Controller.RenderOffWindow(System.Single)">
+            <summary>
+            Renders ImGui into secondary windows
+            </summary>
+            <param name="deltaSeconds">Time it took to render last frame</param>
+        </member>
+        <member name="M:VSImGui.Controller.RenderMainWindow(System.Single)">
+            <summary>
+            Renders ImGui into main game windows
+            </summary>
+            <param name="deltaSeconds">Time it took to render last frame</param>
+        </member>
+        <member name="M:VSImGui.Controller.KeyboardCaptured">
+            <summary>
+            Returns whether ImGui wants to capture keyboard
+            </summary>
+            <returns>True if ImGui handled keyboard inputs</returns>
+        </member>
+        <member name="M:VSImGui.Controller.MouseCaptured">
+            <summary>
+            Returns whether ImGui wants to capture mouse buttons
+            </summary>
+            <returns>True if ImGui handled mouse buttons inputs</returns>
+        </member>
+        <member name="M:VSImGui.Controller.MouseMovesCaptured">
+            <summary>
+            Returns whether ImGui wants to capture mouse movement
+            </summary>
+            <returns>True if ImGui handled mouse movement inputs</returns>
+        </member>
+        <member name="M:VSImGui.Controller.OnWindowDestroyed(OpenTK.Windowing.Desktop.NativeWindow)">
+            <summary>
+            Called when secondary window is dragged into main and destroyed
+            </summary>
+            <param name="window"></param>
+        </member>
+        <member name="M:VSImGui.Controller.LoadFonts">
+            <summary>
+            Called at the right time to load fonts. Uses FontManager to load fonts
+            </summary>
+        </member>
+        <member name="M:VSImGui.Controller.SetConfigFolder">
+            <summary>
+            Sets ModConfig folder as path to ImGui config file that store all the info about ImGui windows arrangement
+            </summary>
+        </member>
+        <member name="T:VSImGui.MainGameWindowWrapper">
+            <summary>
+            Wraps main game window for use in <see cref="T:VSImGui.Controller"/>
+            </summary>
+        </member>
+        <member name="T:VSImGui.VSImGuiDialog">
+            <summary>
+            Used to layer ImGui windows with VS GUI dialogs, to handle inputs, to call ImGui draw and render methods for main game window
+            </summary>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.Update(System.Single)">
+            <summary>
+            Updates ImGui inputs, called only by <see cref="T:VSImGui.OffWindowRenderer"/>
+            </summary>
+            <param name="deltaTime">Time it took to render previous frame</param>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.RenderOffWindow(System.Single)">
+            <summary>
+            Renders ImGui windows and widgets into secondary native windows, called only by <see cref="T:VSImGui.OffWindowRenderer"/>
+            </summary>
+            <param name="deltaTime"></param>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.HandleMouse(Vintagestory.API.Client.MouseEvent)">
+            <summary>
+            Determines if mouse keys inputs were handled
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.HandleMouseMovement(Vintagestory.API.Client.MouseEvent)">
+            <summary>
+            Determines if mouse movement inputs were handled
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.HandleMouseWheel(Vintagestory.API.Client.MouseWheelEventArgs)">
+            <summary>
+            Determines if mouse wheel inputs were handled
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.HandleKeyboard(Vintagestory.API.Client.KeyEvent)">
+            <summary>
+            Determines if keyboard inputs were handled
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="F:VSImGui.VSImGuiDialog._controller">
+            <summary>
+            ImGui controller used to update and render ImGui
+            </summary>
+        </member>
+        <member name="F:VSImGui.VSImGuiDialog._manager">
+            <summary>
+            Manager used to draw ImGui windows and widgets
+            </summary>
+        </member>
+        <member name="F:VSImGui.VSImGuiDialog._grabMouse">
+            <summary>
+            Whether this dialog should unlock mouse from camera (works only in Immersive Mouse mode)
+            </summary>
+        </member>
+        <member name="M:VSImGui.VSImGuiDialog.Draw(System.Single)">
+            <summary>
+            Draw callback that uses <see cref="F:VSImGui.VSImGuiDialog._manager"/> to draw ImGui windows and widgets, also determines if dialog should be opened/closed.<br/>
+            Currently open functionality does not work, because when dialog is closed, it is not rendered, which means that this method is not called.
+            </summary>
+            <param name="deltaSeconds">Time it took to render last frame</param>
+        </member>
+        <member name="T:VSImGui.OffWindowRenderer">
+            <summary>
+            Used to untie rendering of secondary windows from rendering VS GUI dialog in case of it being closed
+            </summary>
+        </member>
+        <member name="P:VSImGui.OffWindowRenderer.RenderOrder">
+            <summary>
+            Does not matter for this renderer, cause it is used to render in secondary windows
+            </summary>
+        </member>
+        <member name="F:VSImGui.OffWindowRenderer._dialog">
+            <summary>
+            VS GUI dialog that is used to integrate ImGui
+            </summary>
+        </member>
+        <member name="T:VSImGui.DrawCallbacksManager">
+            <summary>
+            Stores all the draw callbacks, calls them and makes sure that VS GUI dialog, that is used to integrate ImGui, is opened and closed when needed, and mouse is grabbed when needed
+            </summary>
+        </member>
+        <member name="E:VSImGui.DrawCallbacksManager.DrawCallback">
+            <summary>
+            Draw callbacks that draw all the ImGui windows, is invoked before rendering all the drawn ImGui windows and widgets
+            </summary>
+        </member>
+        <member name="F:VSImGui.DrawCallbacksManager._nextId">
+            <summary>
+            Is used to manage removing callbacks from event and map callback to boolean that tracks it status
+            </summary>
+        </member>
+        <member name="F:VSImGui.DrawCallbacksManager._callbacks">
+            <summary>
+            All the callbacks registered via <see cref="E:VSImGui.DrawCallbacksManager.DrawCallback"/>
+            </summary>
+        </member>
+        <member name="F:VSImGui.DrawCallbacksManager._wasClosed">
+            <summary>
+            Tracks down callback status to decide whether to close or open VS GUI dialog used for integration
+            </summary>
+        </member>
+        <member name="M:VSImGui.DrawCallbacksManager.Draw(System.Single)">
+            <summary>
+            Invokes all the registered callbacks to draw ImGui windows and widgets
+            </summary>
+            <param name="deltaSeconds">Time elapsed since last frame</param>
+            <returns>Whether VS GUI dialog should be closed/opened, and should it grab mouse from camera</returns>
+        </member>
+        <member name="T:VSImGui.EnumEditor`1">
+            <summary>
+            Collection of wrappers around ImGui widgets for editing regular enum variables.
+            </summary>
+            <typeparam name="TEnum"></typeparam>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.Combo(System.String,`0)">
+            <summary>
+            Combo-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.Combo(System.String,`0,System.Boolean@)">
+            <summary>
+            Combo-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value</param>
+            <param name="modified">Sets to <see cref="!:true"/> if value has been modified</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.Combo(System.String,`0@)">
+            <summary>
+            Combo-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Reference to variable that will be edited</param>
+            <returns>Whether value has been modified</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.Combo(System.String,System.String,`0)">
+            <summary>
+            Combo-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filter"/> using wildcards.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filter">Filters possible values using wildcards</param>
+            <param name="value">Current value</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.Combo(System.String,System.String,`0,System.Boolean@)">
+            <summary>
+            Combo-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filter"/> using wildcards.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filter">Filters possible values using wildcards</param>
+            <param name="value">Current value</param>
+            <param name="modified">Sets to <see cref="!:true"/> if value has been modified</param>
+            <returns>New value</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:VSImGui.EnumEditor`1.Combo(System.String,System.String,`0@)" -->
+        <member name="M:VSImGui.EnumEditor`1.List(System.String,`0)">
+            <summary>
+            List-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.List(System.String,`0,System.Boolean@)">
+            <summary>
+            List-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value</param>
+            <param name="modified">Sets to <see cref="!:true"/> if value has been modified</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.List(System.String,`0@)">
+            <summary>
+            List-box with all possible values of <see cref="!:TEnum"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Reference to variable that will be edited</param>
+            <returns>Whether value has been modified</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.List(System.String,System.String,`0)">
+            <summary>
+            List-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filter"/> using wildcards.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filter">Filters possible values using wildcards</param>
+            <param name="value">Current value</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.List(System.String,System.String,`0,System.Boolean@)">
+            <summary>
+            List-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filter"/> using wildcards.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filter">Filters possible values using wildcards</param>
+            <param name="value">Current value</param>
+            <param name="modified">Sets to <see cref="!:true"/> if value has been modified</param>
+            <returns>New value</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:VSImGui.EnumEditor`1.List(System.String,System.String,`0@)" -->
+        <member name="M:VSImGui.EnumEditor`1.ComboWithFilter(System.String,System.String,`0,System.UInt32,System.String)">
+            <summary>
+            Combo-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filterHolder"/> using wildcards.<br/>
+            Also have text-box for entering filter value
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filterHolder">String that will hold filter value.<br/>Needed to make filter value persistent between frames.</param>
+            <param name="value">Current value</param>
+            <param name="maxFilterLength">Max filter length in characters</param>
+            <param name="hint">Hint that would be displayed in filter widget</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.EnumEditor`1.ListWithFilter(System.String,System.String,`0,System.UInt32,System.String)">
+            <summary>
+            List-box with values of <see cref="!:TEnum"/> filtered by <paramref name="filterHolder"/> using wildcards.<br/>
+            Also have text-box for entering filter value
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filterHolder">String that will hold filter value.<br/>Needed to make filter value persistent between frames.</param>
+            <param name="value">Current value</param>
+            <param name="maxFilterLength">Max filter length in characters</param>
+            <param name="hint">Hint that would be displayed in filter widget</param>
+            <returns>New value</returns>
+        </member>
+        <member name="F:VSImGui.EnumEditor`1._names">
+            <summary>
+            Enum values names to display in combo-boxes and list-boxes
+            </summary>
+        </member>
+        <member name="F:VSImGui.EnumEditor`1._values">
+            <summary>
+            Available enum values
+            </summary>
+        </member>
+        <member name="F:VSImGui.EnumEditor`1._keys">
+            <summary>
+            Maps enum values to their corresponding indexes in <see cref="F:VSImGui.EnumEditor`1._names"/> and <see cref="F:VSImGui.EnumEditor`1._values"/>
+            </summary>
+        </member>
+        <member name="T:VSImGui.TextEditor">
+            <summary>
+            Collection of wrappers around ImGui widgets for editing string values.
+            </summary>
+        </member>
+        <member name="M:VSImGui.TextEditor.ListWithFilter(System.String,System.String,System.Collections.Generic.IEnumerable{System.String}@,System.Int32@,System.String@,System.UInt32,System.String)">
+            <summary>
+            Filtered list of strings with its own widget for editing filter value
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="filterHolder">String that will hold filter value.<br/>Needed to make filter value persistent between frames.</param>
+            <param name="elements">Collection of string values</param>
+            <param name="index">Index of selected item in <paramref name="elements"/> using 'ElementAt' method</param>
+            <param name="value">Value of selected value</param>
+            <param name="maxFilterLength">Max filter length in characters</param>
+            <param name="hint">Hint that would be displayed in filter widget</param>
+        </member>
+        <member name="T:VSImGui.ColorEditor">
+            <summary>
+            Collection of wrappers around ImGui widgets for editing color values.<br/>
+            It uses <see cref="T:VSImGui.Value4"/> amd <see cref="T:VSImGui.Value3"/> types, that are convinience structs that support implicit conversion from different vector types.
+            </summary>
+        </member>
+        <member name="M:VSImGui.ColorEditor.ColorEdit(System.String,VSImGui.Value4,ImGuiNET.ImGuiColorEditFlags)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value.<br/>Format depends of <paramref name="flags"/>.</param>
+            <param name="flags"><see cref="M:ImGuiNET.ImGui.ColorEdit4(System.ReadOnlySpan{System.Char},System.Numerics.Vector4@)"/> flags.</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVAEdit(System.String,VSImGui.Value4)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in HSVA format.</param>
+            <returns>New value in HSVA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVAEdit(System.String,System.UInt32)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in U32 RGBA format.</param>
+            <returns>New value in U32 RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBAEdit(System.String,VSImGui.Value4)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in RGBA format.</param>
+            <returns>New value in RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBAEdit(System.String,System.UInt32)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in U32 RGBA format.</param>
+            <returns>New value in U32 RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVEdit(System.String,VSImGui.Value3)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in HSV format.</param>
+            <returns>New value in HSV format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBEdit(System.String,VSImGui.Value3)">
+            <summary>
+            Small color editor that can open color picker and displays selected color.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in RGB format.</param>
+            <returns>New value in RGB format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.ColorPicker(System.String,VSImGui.Value4,ImGuiNET.ImGuiColorEditFlags)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Current value.<br/>Format depends of <paramref name="flags"/>.</param>
+            <param name="flags"><see cref="M:ImGuiNET.ImGui.ColorEdit4(System.ReadOnlySpan{System.Char},System.Numerics.Vector4@)"/> flags.</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVAPicker(System.String,VSImGui.Value4)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in HSVA format.</param>
+            <returns>New value in HSVA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVAPicker(System.String,System.UInt32)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in U32 RGBA format.</param>
+            <returns>New value in U32 RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBAPicker(System.String,VSImGui.Value4)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in RGBA format.</param>
+            <returns>New value in RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBAPicker(System.String,System.UInt32)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in U32 RGBA format.</param>
+            <returns>New value in U32 RGBA format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.HSVPicker(System.String,VSImGui.Value3)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in HSV format.</param>
+            <returns>New value in HSV format</returns>
+        </member>
+        <member name="M:VSImGui.ColorEditor.RGBPicker(System.String,VSImGui.Value3)">
+            <summary>
+            Relatively big (can be resized by <see cref="M:ImGuiNET.ImGui.PushItemWidth(System.Single)"/>) color picker.
+            </summary>
+            <param name="title">Widget's title and id.</param>
+            <param name="value">Current value in RGB format.</param>
+            <returns>New value in RGB format</returns>
+        </member>
+        <member name="T:VSImGui.AssetLocationEditor">
+            <summary>
+            Collection of editors for <see cref="T:Vintagestory.API.Common.AssetLocation"/>
+            </summary>
+        </member>
+        <member name="M:VSImGui.AssetLocationEditor.Edit(System.String,Vintagestory.API.Common.AssetLocation@,Vintagestory.API.Common.AssetLocation)">
+            <summary>
+            Allows to edit domain, path and category of asset location. Replaces with default value if <paramref name="value"/> is not Valid.
+            </summary>
+            <param name="title">Used as widgets' id</param>
+            <param name="value"></param>
+            <param name="defaultValue">Is used to substitute given value in case of it being not valid. Is cloned on substitution.</param>
+        </member>
+        <member name="M:VSImGui.AssetLocationEditor.Edit(System.String,Vintagestory.API.Common.AssetLocation)">
+            <summary>
+            Allows to edit domain, path and category of asset location
+            </summary>
+            <param name="title">Used as widgets' id</param>
+            <param name="value"></param>
+        </member>
+        <member name="T:VSImGui.AssetCategoryEditor">
+            <summary>
+            Collection of editors for <see cref="T:VSImGui.AssetCategoryEditor"/>
+            </summary>
+        </member>
+        <member name="M:VSImGui.AssetCategoryEditor.Combo(System.String,Vintagestory.API.Common.AssetCategory@)">
+            <summary>
+            Combo-box with list of available <see cref="F:Vintagestory.API.Common.AssetCategory.categories"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">Replaces value with selected one from <see cref="F:Vintagestory.API.Common.AssetCategory.categories"/></param>
+        </member>
+        <member name="M:VSImGui.AssetCategoryEditor.Combo(System.String,Vintagestory.API.Common.AssetCategory)">
+            <summary>
+            Combo-box with list of available <see cref="F:Vintagestory.API.Common.AssetCategory.categories"/>.
+            </summary>
+            <param name="title">Widget's title and id</param>
+            <param name="value">A category from <see cref="F:Vintagestory.API.Common.AssetCategory.categories"/></param>
+            <returns>New selected value</returns>
+        </member>
+        <member name="T:VSImGui.ListEditor">
+            <summary>
+            Collection of editors for lists
+            </summary>
+        </member>
+        <member name="M:VSImGui.ListEditor.Edit(System.String,System.String[]@,System.Int32@,System.Func{System.Int32,System.String},System.Action{System.String,System.Int32},System.Boolean)">
+            <summary>
+            List-box for editing a list of values with 'Add' and 'Remove' buttons. Manages adding and removing items.
+            </summary>
+            <param name="title">Widget title (and id for buttons)</param>
+            <param name="list">Displayed list</param>
+            <param name="selected">Index of selected value in <paramref name="list"/></param>
+            <param name="onRemove">Callback on remove button press. Selected index and value are passed as arguments.</param>
+            <param name="onAdd">Callback on add button press. Selected index is passed as argument. New value is expected as return value.</param>
+            <param name="appendToEnd">If <see cref="!:false"/> value appended to selected position, else to the end of list</param>
+        </member>
+        <member name="M:VSImGui.ListEditor.Edit(System.String,System.String[],System.Int32@,System.Action{System.String,System.Int32},System.Func{System.Int32,System.String})">
+            <summary>
+            List-box for editing a list of values with 'Add' and 'Remove' buttons.
+            </summary>
+            <param name="title">Widget title (and id for buttons)</param>
+            <param name="list">Displayed list</param>
+            <param name="selected">Index of selected value in <paramref name="list"/></param>
+            <param name="onRemove">Callback on remove button press. Should handle removing element from list. Selected index and value are passed as arguments.</param>
+            <param name="onAdd">Callback on add button press. Should handle adding element from list. Selected index is passed as argument. New value is expected as return value.</param>
+        </member>
+        <member name="T:VSImGui.TimeEditor">
+            <summary>
+            Collection of editors for <see cref="T:System.TimeSpan"/>
+            </summary>
+        </member>
+        <member name="F:VSImGui.TimeEditor.TimeTypes">
+            <summary>
+            Available time scales for float based editors
+            </summary>
+        </member>
+        <member name="M:VSImGui.TimeEditor.WithScaleSelection(System.String,System.TimeSpan@,System.Int32@)">
+            <summary>
+            Draggable float editor with selection of timescale
+            </summary>
+            <param name="title">Title and id of widget</param>
+            <param name="value"></param>
+            <param name="timeScale">Index from <see cref="F:VSImGui.TimeEditor.TimeTypes"/>. Is used to hold selected scale value between frames.</param>
+        </member>
+        <member name="M:VSImGui.TimeEditor.WithScaleSelection(System.String,System.TimeSpan,System.Int32@)">
+            <summary>
+            Draggable float editor with selection of timescale
+            </summary>
+            <param name="title">Title and id of widget</param>
+            <param name="value">Current value</param>
+            <param name="timeScale">Index from <see cref="F:VSImGui.TimeEditor.TimeTypes"/>. Is used to hold selected scale value between frames.</param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.TimeEditor.WithScaleSelection(System.String,System.TimeSpan@,System.Int32@,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Slider float editor with selection of timescale
+            </summary>
+            <param name="title">Title and id of widget</param>
+            <param name="value"></param>
+            <param name="timeScale">Index from <see cref="F:VSImGui.TimeEditor.TimeTypes"/>. Is used to hold selected scale value between frames</param>
+            <param name="min"></param>
+            <param name="max"></param>
+        </member>
+        <member name="M:VSImGui.TimeEditor.WithScaleSelection(System.String,System.TimeSpan,System.Int32@,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Slider float editor with selection of timescale
+            </summary>
+            <param name="title">Title and id of widget</param>
+            <param name="value">Current value</param>
+            <param name="timeScale">Index from <see cref="F:VSImGui.TimeEditor.TimeTypes"/>. Is used to hold selected scale value between frames</param>
+            <param name="min"></param>
+            <param name="max"></param>
+            <returns>New value</returns>
+        </member>
+        <member name="M:VSImGui.TimeEditor.Get(System.String,System.TimeSpan,System.Int32@)">
+            <summary>
+            Selector for time scale, returns scaled value
+            </summary>
+            <param name="title"></param>
+            <param name="value"></param>
+            <param name="timeScale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VSImGui.TimeEditor.Get(System.TimeSpan,System.Int32)">
+            <summary>
+            Scales value
+            </summary>
+            <param name="value"></param>
+            <param name="timeScale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VSImGui.TimeEditor.Set(System.Single,System.Int32)">
+            <summary>
+            Unscales value
+            </summary>
+            <param name="value"></param>
+            <param name="timeScale"></param>
+            <returns></returns>
+        </member>
+        <member name="T:VSImGui.EditorsUtils">
+            <summary>
+            General utls for editors
+            </summary>
+        </member>
+        <member name="M:VSImGui.EditorsUtils.FilterElements(System.String,System.Collections.Generic.IEnumerable{System.String}@,System.Collections.Generic.IEnumerable{System.String}@,System.Collections.Generic.IEnumerable{System.Int32}@)">
+            <summary>
+            Filters elements of a collection.
+            </summary>
+            <param name="filter">Filter with wildcards support</param>
+            <param name="elements">Collection to filter</param>
+            <param name="filtered">Result of applying given filter</param>
+            <param name="indexes">Map from old to new elemets indexes</param>
+        </member>
+        <member name="M:VSImGui.EditorsUtils.FilterElements(System.String,System.Collections.Generic.IEnumerable{System.String}@,System.Collections.Generic.IEnumerable{System.String}@,System.Collections.Generic.IEnumerable{System.Int32}@,System.Int32@,System.Int32@)">
+            <summary>
+            Filters elements of a collection and manages selected items
+            </summary>
+            <param name="filter">Filter with wildcards support</param>
+            <param name="elements">Collection to filter</param>
+            <param name="filtered">Result of applying given filter</param>
+            <param name="indexes">Map from old to new elements indexes</param>
+            <param name="index">Selected index in given collection</param>
+            <param name="selection">Selected index in filtered collection</param>
+            <returns>True if selection has changed</returns>
+        </member>
+        <member name="T:VSImGui.FixedSizedQueue`1">
+            <summary>
+            Queue with fixed size. If size is exceeded extra elements are popped from beginning of the queue.<br/>
+            Meant to be used for plots.
+            </summary>
+            <typeparam name="TElement"></typeparam>
+        </member>
+        <member name="F:VSImGui.FixedSizedQueue`1.Queue">
+            <summary>
+            Underlying queue
+            </summary>
+        </member>
+        <member name="P:VSImGui.FixedSizedQueue`1.Limit">
+            <summary>
+            Max number of elements. When set shrinks queue.
+            </summary>
+        </member>
+        <member name="M:VSImGui.FixedSizedQueue`1.Enqueue(`0)">
+            <summary>
+            Add element to the end of the queue. Shrink queue if needed.
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="T:VSImGui.NativesLoader">
+            <summary>
+            Provides method to load all supported binaries for current platform
+            </summary>
+        </member>
+        <member name="M:VSImGui.NativesLoader.Load(Vintagestory.API.Common.ILogger,Vintagestory.API.Common.ModSystem)">
+            <summary>
+            Loads all supported binaries for current platform
+            </summary>
+            <param name="logger">To report errors</param>
+            <param name="mod">To get path to folder with natives</param>
+            <returns></returns>
+        </member>
+        <member name="F:VSImGui.NativesLoader._nativeLibraries">
+            <summary>
+            Supported libraries to load
+            </summary>
+        </member>
+        <member name="T:VSImGui.DllLoader">
+            <summary>
+            Base class for native dll loaders for different platforms
+            </summary>
+        </member>
+        <member name="M:VSImGui.DllLoader.Loader">
+            <summary>
+            Returns loader for current platform
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:VSImGui.DllLoader.Load(System.String,Vintagestory.API.Common.ILogger,Vintagestory.API.Common.Mod)">
+            <summary>
+            Loads specified native dll.<br/>
+            Platform specific paths:
+            <list type="bullet">
+            <item>Windows: '/native/win/{<paramref name="dllName"/>}.dll'</item>
+            <item>Linux: '/native/linux/{<paramref name="dllName"/>}.so'</item>
+            <item>Mac: '/native/mac/{<paramref name="dllName"/>}.dylib'</item>
+            </list>
+            </summary>
+            <param name="dllName">Native dll name, not path and without extension</param>
+            <param name="logger">To log errors</param>
+            <param name="mod">Mod that has specified native library in /native/{platform} directory</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+        <member name="M:VSImGui.DllLoader.Load(System.String,Vintagestory.API.Common.ILogger)">
+            <summary>
+            Load dll using platofrm specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfuly loaded</returns>
+        </member>
+        <member name="T:VSImGui.WindowsDllLoader">
+            <summary>
+            Loads native dll on Windows
+            </summary>
+        </member>
+        <member name="M:VSImGui.WindowsDllLoader.LoadLibrary(System.String)">
+            <summary>
+            Function from 'kernel32.dll' that is used to load dlls on windows
+            </summary>
+            <param name="fileName">Full path to dll</param>
+            <returns><see cref="F:System.IntPtr.Zero"/> if failed to load library</returns>
+        </member>
+        <member name="M:VSImGui.WindowsDllLoader.GetLastError">
+            <summary>
+            Retrieves error code of error occurred while loading dynamic library 
+            </summary>
+            <returns>Error code</returns>
+        </member>
+        <member name="M:VSImGui.WindowsDllLoader.FormatMessage(System.UInt32,System.IntPtr,System.UInt32,System.UInt32,System.Text.StringBuilder,System.UInt32,System.IntPtr[])">
+            <summary>
+            Retrieves error message for error code provided by <see cref="M:VSImGui.WindowsDllLoader.GetLastError"/>
+            </summary>
+            <param name="dwFlags"></param>
+            <param name="lpSource"></param>
+            <param name="dwMessageId">Error code from <see cref="M:VSImGui.WindowsDllLoader.GetLastError"/></param>
+            <param name="dwLanguageId"></param>
+            <param name="lpBuffer">Error message will be written into this object</param>
+            <param name="nSize"></param>
+            <param name="Arguments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VSImGui.WindowsDllLoader.Load(System.String,Vintagestory.API.Common.ILogger)">
+            <summary>
+            Loads specified dll using windows specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+        <member name="T:VSImGui.LinuxDllLoader">
+            <summary>
+            Loads specified dll using linux specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+        <member name="M:VSImGui.LinuxDllLoader.Load(System.String,Vintagestory.API.Common.ILogger)">
+            <summary>
+            Loads specified dll using linux specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+        <member name="T:VSImGui.MacDllLoader">
+            <summary>
+            Loads specified dll using OSX (Mac) specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+        <member name="M:VSImGui.MacDllLoader.Load(System.String,Vintagestory.API.Common.ILogger)">
+            <summary>
+            Loads specified dll using OSX (Mac) specific functions
+            </summary>
+            <param name="dllPath">Full path to dll</param>
+            <param name="logger">To log errors</param>
+            <returns>true if was successfully loaded</returns>
+        </member>
+    </members>
+</doc>

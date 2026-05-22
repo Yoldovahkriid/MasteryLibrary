@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MasteryLibrary/MasteryLibrary/MasteryLibrary.csproj" />
+  <Project Path="MasteryLibrary/ZZCakeBuild/CakeBuild.csproj" />
+</Solution>
