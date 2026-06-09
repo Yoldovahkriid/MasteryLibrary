@@ -20,12 +20,14 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             Level = level;
         }
 
-        public SkillInstance(ICoreAPI api, Skill skill, int level = 1, long lastUsedTime = 0)
+        public SkillInstance(ICoreAPI api, Skill skill, int level, long remainingCooldownMs, long currentTime)
         {
             this.api = api;
             Skill = skill;
             Level = level;
-            LastUsedTime = lastUsedTime;
+            long cooldownMs = (long)(skill.Cooldown * 1000L);
+            long elapsed = cooldownMs - remainingCooldownMs;
+            LastUsedTime = remainingCooldownMs > 0 ? currentTime - elapsed : 0;
         }
 
         public bool LevelUp()
@@ -48,6 +50,20 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         public void UpdateCooldown()
         {
             LastUsedTime = api.World.ElapsedMilliseconds;
+        }
+
+        public long GetRemainingCooldownMs()
+        {
+            if (Skill.Cooldown <= 0) return 0;
+            long elapsed = api.World.ElapsedMilliseconds - LastUsedTime;
+            long remaining = (long)(Skill.Cooldown * 1000L) - elapsed;
+            return remaining > 0 ? remaining : 0;
+        }
+        public void SetCooldownFromRemaining(long remainingMs, long currentTime)
+        {
+            long cooldownMs = (long)(Skill.Cooldown * 1000L);
+            long elapsed = cooldownMs - remainingMs;
+            LastUsedTime = currentTime - elapsed;
         }
     }
 }

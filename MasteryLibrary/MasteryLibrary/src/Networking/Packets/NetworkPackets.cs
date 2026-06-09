@@ -54,9 +54,11 @@ namespace MasteryLibrary.src.Networking.Packets
 
     //Packet sent to update the clients UI (Note we cannot send the servers time as it is different from client time causing discrepancies)
     [ProtoContract]
-    public class CooldownUpdatePacket 
-    { 
-        [ProtoMember(1)]
+    public class CooldownUpdatePacket
+    {
+        [ProtoMember(1)] 
         public required string SkillCode;
+        [ProtoMember(2)] 
+        public long RemainingCooldownMs;
     }
 }

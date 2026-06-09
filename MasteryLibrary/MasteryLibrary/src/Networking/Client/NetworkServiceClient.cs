@@ -47,7 +47,9 @@ namespace MasteryLibrary.src.Networking.Client
         {
             EntityBehaviorPlayerMasteries? MasteryBehavior = api.World.Player.Entity.GetBehavior<EntityBehaviorPlayerMasteries>();
             if (MasteryBehavior == null) return;
-            MasteryBehavior.PlayerMasteryData.GetSkillInstance(packet.SkillCode)?.UpdateCooldown();
+            var skill = MasteryBehavior.PlayerMasteryData.GetSkillInstance(packet.SkillCode);
+            if (skill == null) return;
+            skill.SetCooldownFromRemaining(packet.RemainingCooldownMs, api.World.ElapsedMilliseconds);
         }
 
         private void HandleActionFailedResponse(ActionFailedResponsePacket packet)

@@ -28,6 +28,6 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
     {
         [ProtoMember(1)] public string Code { get; init; }
         [ProtoMember(2)] public int Level { get; init; }
-        [ProtoMember(3)] public long LastUsedTime { get; init; }
+        [ProtoMember(3)] public long RemainingCooldownMs { get; init; }
     }
 }

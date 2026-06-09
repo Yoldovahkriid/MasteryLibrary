@@ -191,7 +191,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                     {
                         Code = sk.Key,
                         Level = sk.Value.Level,
-                        LastUsedTime = sk.Value.LastUsedTime
+                        RemainingCooldownMs = sk.Value.GetRemainingCooldownMs() // see below
                     }).ToList()
                 }).ToList()
             };
@@ -219,7 +219,9 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 foreach (var ss in ms.UnlockedSkills ?? new())
                 {
                     if (!mastery.Skills.TryGetValue(ss.Code, out var skill)) continue;
-                    var skillInst = new SkillInstance(Api, skill, ss.Level, ss.LastUsedTime);
+                    var skillInst = new SkillInstance(Api, skill, ss.Level,
+                        remainingCooldownMs: ss.RemainingCooldownMs,
+                        currentTime: Api.World.ElapsedMilliseconds);
                     instance.UnlockedSkills[ss.Code] = skillInst;
                 }
                 learntMasteries[ms.Code] = instance;

@@ -122,15 +122,18 @@ namespace MasteryLibrary
             {
                 if (entity is EntityAgent)
                 {
-                    entity.AddBehavior(new EntityBehaviorEffects(entity));
+                    var behavior = new EntityBehaviorEffects(entity);
+                    entity.AddBehavior(behavior);
+                    behavior.Initialize(entity.Properties, entity.Properties.Attributes);
                 }
             };
 
-            api.Event.OnEntityLoaded += (entity) =>
-            {
+            api.Event.OnEntityLoaded += (entity) => {
                 if (entity is EntityAgent && !entity.HasBehavior<EntityBehaviorEffects>())
                 {
-                    entity.AddBehavior(new EntityBehaviorEffects(entity));
+                    var behavior = new EntityBehaviorEffects(entity);
+                    entity.AddBehavior(behavior);
+                    behavior.Initialize(entity.Properties, entity.Properties.Attributes);
                 }
             };
 

@@ -114,9 +114,9 @@ namespace MasteryLibrary.src.Networking.Server
                     AbilityResult result = MasteryAPI.AbilityRegistry.ActivateAbility(skill.Skill.Ability, context);
                     AbilityUsed = result.Success;
 
-                    if (!AbilityUsed && string.IsNullOrEmpty(result.Message))
+                    if (!AbilityUsed && !string.IsNullOrEmpty(result.Message))
                     {
-                        api.Logger.Event($"[MasteryLibrary] Abilioty {skill.Skill.Ability} failed for player {player.PlayerName}: {result.Message}");
+                        api.Logger.Event($"[MasteryLibrary] Ability {skill.Skill.Ability} failed for player {player.PlayerName}: {result.Message}");
                     }
                 }
             }
@@ -124,7 +124,11 @@ namespace MasteryLibrary.src.Networking.Server
             if(AbilityUsed)
             {
                 skill.UpdateCooldown();
-                channel.SendPacket(new CooldownUpdatePacket { SkillCode = skillcode }, player);
+                channel.SendPacket(new CooldownUpdatePacket
+                {
+                    SkillCode = skillcode,
+                    RemainingCooldownMs = (long)(skill.Skill.Cooldown * 1000L)
+                }, player);
             }
         }
 
