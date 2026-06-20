@@ -131,7 +131,9 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
 
             if (!masteryInstance.UnlockedSkills.TryGetValue(skillcode, out SkillInstance skillInstance))
             {
-                if (masteryInstance.Level >= skill.RequiredMasteryLevel && masteryInstance.ArePrerequisitesMet(skill.LevelRequirements.GetValueOrDefault(1) ?? new List<SkillPrerequisite>()))
+                if (masteryInstance.Level >= skill.RequiredMasteryLevel 
+                    && masteryInstance.ArePrerequisitesMet(skill.LevelRequirements.GetValueOrDefault(1) ?? new List<SkillPrerequisite>())
+                    && !ConflictsWithLearntSkills(masteryInstance, skill))
                 {
                     if (masteryInstance.UnlockSkill(skill))
                     {
@@ -154,6 +156,18 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 {
                     MasteryPoints--;
                     OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool ConflictsWithLearntSkills(MasteryInstance mastery, Skill skill)
+        {
+            foreach (var learntskill in mastery.UnlockedSkills.Values)
+            {
+                if (learntskill.Skill.ExclusiveGroup == skill.ExclusiveGroup)
+                {
                     return true;
                 }
             }

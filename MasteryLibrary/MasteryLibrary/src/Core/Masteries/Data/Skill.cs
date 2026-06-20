@@ -24,6 +24,7 @@ namespace MasteryLibrary.src.Core.Masteries.Data
         public virtual int MaxLevel { get; } = 1;
         public virtual int RequiredMasteryLevel { get; } = 1;
         public virtual Dictionary<int, List<SkillPrerequisite>> LevelRequirements { get; set; } = new Dictionary<int, List<SkillPrerequisite>>();
+        public virtual string? ExclusiveGroup { get; } = null;
         public abstract int Column { get; }
         public abstract EnumSkillType SkillType { get; }
         public virtual string Ability { get; } = string.Empty;
