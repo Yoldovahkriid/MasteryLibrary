@@ -22,10 +22,11 @@ namespace MasteryLibrary.src.Integration.GamePatches
         public static void MatchesPostfix(GridRecipe __instance, IPlayer forPlayer, ref bool __result)
         {
             if (!__result || forPlayer == null) return;
-            if (__instance.Attributes?["requiresSkill"] == null) return;
 
-            string? requiredSkill = __instance.Attributes["requiresSkill"].AsString();
-            int requiredLevel = __instance.Attributes["requiresLevel"].AsInt(1);
+            string? requiredSkill = __instance.Attributes?["requiresSkill"].AsString();
+            if (string.IsNullOrEmpty(requiredSkill)) return; 
+            int requiredLevel = __instance.Attributes?["requiresLevel"]?.AsInt(1) ?? 1;
+
 
             EntityBehaviorPlayerMasteries? masteries = forPlayer.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
             if (masteries == null)
@@ -46,8 +47,6 @@ namespace MasteryLibrary.src.Integration.GamePatches
         public static void Postfix(RecipeBase __instance, ItemSlot[] inputSlots, ItemSlot outputSlot)
         {
             if (outputSlot.Itemstack == null) return;
-            if (__instance.Attributes?["scalesWithSkill"] == null) return;
-            if (__instance.Attributes?["outputScaling"] == null) return;
 
             IPlayer? player = GetPlayerFromSlots(inputSlots);
             if (player == null) return;
@@ -56,8 +55,8 @@ namespace MasteryLibrary.src.Integration.GamePatches
                 .GetBehavior<EntityBehaviorPlayerMasteries>();
             if (masteries == null) return;
 
-            string? requiredSkill = __instance.Attributes["scalesWithSkill"].AsString();
-            StatConfiguration? statConfig = __instance.Attributes["outputScaling"].AsObject<StatConfiguration>();
+            string? requiredSkill = __instance.Attributes?["scalesWithSkill"].AsString();
+            StatConfiguration? statConfig = __instance.Attributes?["outputScaling"].AsObject<StatConfiguration>();
 
             if (string.IsNullOrEmpty(requiredSkill)) return;
             SkillInstance? skill = masteries.PlayerMasteryData.GetSkillInstance(requiredSkill);
