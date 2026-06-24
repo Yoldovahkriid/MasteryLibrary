@@ -32,12 +32,11 @@ namespace MasteryLibrary.src.Core.Masteries.Data
 
         public Skill? GetSkill(string code)
         {
+            if (string.IsNullOrEmpty(code)) return null;
             foreach (var mastery in Masteries.Values)
             {
                 if (mastery.Skills.TryGetValue(code, out var skill))
-                {
                     return skill;
-                }
             }
             return null;
         }

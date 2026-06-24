@@ -1,4 +1,5 @@
-﻿using MasteryLibrary.src.Config;
+﻿using HarmonyLib;
+using MasteryLibrary.src.Config;
 using MasteryLibrary.src.Core.Masteries.Data;
 using System;
 using System.Collections.Generic;
@@ -176,6 +177,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
 
         public SkillInstance? GetSkillInstance(string skillCode)
         {
+            if (string.IsNullOrEmpty(skillCode)) return null;
             foreach (var masteryInstance in learntMasteries.Values)
             {
                 if (masteryInstance.UnlockedSkills.TryGetValue(skillCode, out var skillInstance))

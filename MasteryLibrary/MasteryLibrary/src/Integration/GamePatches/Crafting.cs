@@ -2,12 +2,15 @@
 using MasteryLibrary.src.Behaviors.EntityBehaviors;
 using MasteryLibrary.src.Core.Masteries.Data;
 using MasteryLibrary.src.Core.Masteries.Instances;
+using MasteryLibrary.src.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.Common;
 
 namespace MasteryLibrary.src.Integration.GamePatches
 {
@@ -21,7 +24,7 @@ namespace MasteryLibrary.src.Integration.GamePatches
             if (!__result || forPlayer == null) return;
             if (__instance.Attributes?["requiresSkill"] == null) return;
 
-            string requiredSkill = __instance.Attributes["requiresSkill"].AsString();
+            string? requiredSkill = __instance.Attributes["requiresSkill"].AsString();
             int requiredLevel = __instance.Attributes["requiresLevel"].AsInt(1);
 
             EntityBehaviorPlayerMasteries? masteries = forPlayer.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
@@ -36,6 +39,44 @@ namespace MasteryLibrary.src.Integration.GamePatches
             {
                 __result = false;
             }
+        }
+
+                [HarmonyPostfix]
+        [HarmonyPatch(typeof(RecipeBase), nameof(RecipeBase.GenerateOutputStack))]
+        public static void Postfix(RecipeBase __instance, ItemSlot[] inputSlots, ItemSlot outputSlot)
+        {
+            if (outputSlot.Itemstack == null) return;
+            if (__instance.Attributes?["scalesWithSkill"] == null) return;
+            if (__instance.Attributes?["outputScaling"] == null) return;
+
+            IPlayer? player = GetPlayerFromSlots(inputSlots);
+            if (player == null) return;
+
+            EntityBehaviorPlayerMasteries? masteries = player.Entity
+                .GetBehavior<EntityBehaviorPlayerMasteries>();
+            if (masteries == null) return;
+
+            string? requiredSkill = __instance.Attributes["scalesWithSkill"].AsString();
+            StatConfiguration? statConfig = __instance.Attributes["outputScaling"].AsObject<StatConfiguration>();
+
+            if (string.IsNullOrEmpty(requiredSkill)) return;
+            SkillInstance? skill = masteries.PlayerMasteryData.GetSkillInstance(requiredSkill);
+            if (skill == null || statConfig == null) return;
+
+            int scaled = (int)StatScalingUtil.GetScaledValue(statConfig, skill.Level);
+            outputSlot.Itemstack.StackSize = Math.Max(1, scaled);
+        }
+
+        private static IPlayer? GetPlayerFromSlots(ItemSlot[] slots)
+        {
+            foreach (var slot in slots)
+            {
+                if (slot?.Inventory is InventoryCraftingGrid inv)
+                {
+                    return inv.Player;
+                }
+            }
+            return null;
         }
     }
 
@@ -63,11 +104,13 @@ namespace MasteryLibrary.src.Integration.GamePatches
                 var recipe = recipes[i]?.Recipe;
                 if (recipe?.Attributes?["requiresSkill"] != null)
                 {
-                    string requiredSkill = recipe.Attributes["requiresSkill"].AsString();
+                    string? requiredSkill = recipe.Attributes["requiresSkill"].AsString();
                     int requiredLevel = recipe.Attributes["requiresLevel"].AsInt(1);
 
+                    if (string.IsNullOrEmpty(requiredSkill)) continue;
                     Skill? skill = api.ModLoader.GetModSystem<MasteryLibraryAPI>()?.MasteryDefinitions.GetSkill(requiredSkill);
 
+                    if (skill == null) continue;
                     string skillName = skill.GetDisplayName(requiredLevel);
                     string skillText = Lang.Get("masterylib:gridrecipe-requiresskill", skillName, requiredLevel);
 

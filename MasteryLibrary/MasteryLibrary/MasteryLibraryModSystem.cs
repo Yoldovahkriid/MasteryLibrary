@@ -1,4 +1,5 @@
-﻿using MasteryLibrary.src.Behaviors.CollectibleBehaviors;
+﻿using HarmonyLib;
+using MasteryLibrary.src.Behaviors.CollectibleBehaviors;
 using MasteryLibrary.src.Behaviors.EntityBehaviors;
 using MasteryLibrary.src.Config;
 using MasteryLibrary.src.Core.Abilities;
@@ -39,6 +40,7 @@ namespace MasteryLibrary
         private MasteryGUIWindow MasteryWindow { get; set; }
         private AbilityHotbarGUI AbilityHotbar { get; set; }
         private UICustomizationWindow CustomisationWindow { get; set; }
+        private Harmony? harmony;
 
         public override void Start(ICoreAPI api)
         {
@@ -51,6 +53,12 @@ namespace MasteryLibrary
             api.RegisterEntityBehaviorClass("PlayerMasteries", typeof(EntityBehaviorPlayerMasteries));
             api.RegisterEntityBehaviorClass("EntityEffects", typeof(EntityBehaviorEffects));
             api.RegisterCollectibleBehaviorClass("CanInflictEffects", typeof(CanInflictEffects));
+
+            if (!Harmony.HasAnyPatches(Mod.Info.ModID))
+            {
+                harmony = new Harmony(Mod.Info.ModID);
+                harmony.PatchAllUncategorized();
+            }
         }
         public void RaiseSkillUnlocked(MasteryInstance mastery, SkillInstance skill)
         {
@@ -128,7 +136,8 @@ namespace MasteryLibrary
                 }
             };
 
-            api.Event.OnEntityLoaded += (entity) => {
+            api.Event.OnEntityLoaded += (entity) =>
+            {
                 if (entity is EntityAgent && !entity.HasBehavior<EntityBehaviorEffects>())
                 {
                     var behavior = new EntityBehaviorEffects(entity);
@@ -139,7 +148,7 @@ namespace MasteryLibrary
 
             api.Event.OnEntityDeath += (entity, source) =>
             {
-                if(entity is EntityAgent && entity.HasBehavior<EntityBehaviorEffects>())
+                if (entity is EntityAgent && entity.HasBehavior<EntityBehaviorEffects>())
                 {
                     entity.GetBehavior<EntityBehaviorEffects>()?.EffectManager.ClearAllEffects();
                 }
@@ -165,14 +174,16 @@ namespace MasteryLibrary
             }
 
             api.Input.RegisterHotKey("masterygui", Lang.Get("masterylib:hotkey-open-mastery-menu"), GlKeys.K, HotkeyType.GUIOrOtherControls);
-            api.Input.SetHotKeyHandler("masterygui", (a) => {
+            api.Input.SetHotKeyHandler("masterygui", (a) =>
+            {
                 (NetworkService as NetworkServiceClient)?.RequestMasteryState();
                 MasteryWindow.Toggle();
                 return true;
             });
 
             api.Input.RegisterHotKey("masteryuicustomize", Lang.Get("masterylib:hotkey-ui-customize"), GlKeys.U, HotkeyType.GUIOrOtherControls);
-            api.Input.SetHotKeyHandler("masteryuicustomize", (a) => {
+            api.Input.SetHotKeyHandler("masteryuicustomize", (a) =>
+            {
                 CustomisationWindow?.Toggle();
                 return true;
             });
@@ -183,7 +194,8 @@ namespace MasteryLibrary
                 GlKeys.H,
                 HotkeyType.GUIOrOtherControls
             );
-            api.Input.SetHotKeyHandler("masterylib-hotbar-toggle", (a) => {
+            api.Input.SetHotKeyHandler("masterylib-hotbar-toggle", (a) =>
+            {
                 AbilityHotbar?.ToggleVisibility();
                 return true;
             });
@@ -195,12 +207,18 @@ namespace MasteryLibrary
                 GlKeys defaultKey = GlKeys.Unknown;
 
                 api.Input.RegisterHotKey(hotkeyName, Lang.Get("masterylib:hotkey-use-active-skill", slot + 1), defaultKey, HotkeyType.CharacterControls);
-                api.Input.SetHotKeyHandler(hotkeyName, (a) => {
+                api.Input.SetHotKeyHandler(hotkeyName, (a) =>
+                {
                     api.Logger.Debug("Pressed hotkey for active skill in slot {0}", slot);
                     (NetworkService as NetworkServiceClient)?.RequestSkillActivation(slot);
                     return true;
                 });
             }
+        }
+
+        public override void Dispose()
+        {
+            harmony?.UnpatchAll($"{Mod.Info.ModID}");
         }
     }
 }

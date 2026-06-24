@@ -57,16 +57,15 @@ namespace MasteryLibrary.src.Utilities
         private static T GetSafeParam<T>(StatConfiguration config, string key, T defaultValue = default)
         {
             if (config?.ScalingParams == null || !config.ScalingParams.TryGetValue(key, out object value))
-            {
                 return defaultValue;
-            }
 
             try
             {
                 if (typeof(T) == typeof(float))
-                {
                     return (T)(object)Convert.ToSingle(value);
-                }
+
+                if (typeof(T) == typeof(float[]) && value is Newtonsoft.Json.Linq.JArray jArray)
+                    return (T)(object)jArray.ToObject<float[]>();
 
                 return (T)value;
             }
