@@ -165,6 +165,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
 
         private bool ConflictsWithLearntSkills(MasteryInstance mastery, Skill skill)
         {
+            if (string.IsNullOrEmpty(skill.ExclusiveGroup)) return false;
             foreach (var learntskill in mastery.UnlockedSkills.Values)
             {
                 if (learntskill.Skill.ExclusiveGroup == skill.ExclusiveGroup)
