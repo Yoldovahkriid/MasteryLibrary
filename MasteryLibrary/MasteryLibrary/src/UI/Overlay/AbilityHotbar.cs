@@ -303,7 +303,7 @@ namespace MasteryLibrary.src.UI.Components
                     drawList.PathStroke(ImGui.ColorConvertFloat4ToU32(colGold), ImDrawFlags.None, 1.5f);
 
                     // Countdown text centred on the icon
-                    string cdText = $"{(cooldownMs - timeSinceUsed) / 1000f:F1}";
+                    string cdText = GetRemainingCooldownText(cooldownMs, timeSinceUsed);
                     Vector2 textSz = ImGui.CalcTextSize(cdText);
                     Vector2 textPos = center - textSz * 0.5f;
                     drawList.AddText(textPos + new Vector2(1f, 1f),
@@ -392,6 +392,26 @@ namespace MasteryLibrary.src.UI.Components
             // Bottom-right
             dl.AddLine(max, max - new Vector2(len, 0), c, t);
             dl.AddLine(max, max - new Vector2(0, len), c, t);
+        }
+
+        private string GetRemainingCooldownText(long cooldownMs, long timeSinceUsed)
+        {
+            long remainingMs = cooldownMs - timeSinceUsed;
+
+            TimeSpan t = TimeSpan.FromMilliseconds(remainingMs);
+
+            if (t.TotalHours >= 1)
+            {
+                return $"{Math.Floor(t.TotalHours)}h";
+            }
+
+            if (t.TotalMinutes >= 1)
+            {
+                if (t.TotalMinutes < 5) return $"{Math.Floor(t.TotalMinutes)}m {t.Seconds}s";
+                return $"{Math.Floor(t.TotalMinutes)}m";
+            }
+
+            return $"{t.Seconds}s";
         }
     }
 }
