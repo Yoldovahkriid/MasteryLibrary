@@ -134,6 +134,12 @@ namespace MasteryLibrary
                     entity.AddBehavior(behavior);
                     behavior.Initialize(entity.Properties, entity.Properties.Attributes);
                 }
+                if (entity is EntityPlayer player)
+                {
+                    (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
+                    EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
+                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                }
             };
 
             api.Event.OnEntityLoaded += (entity) =>
@@ -144,6 +150,12 @@ namespace MasteryLibrary
                     entity.AddBehavior(behavior);
                     behavior.Initialize(entity.Properties, entity.Properties.Attributes);
                 }
+                if (entity is EntityPlayer player)
+                {
+                    (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
+                    EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
+                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                }
             };
 
             api.Event.OnEntityDeath += (entity, source) =>
@@ -151,6 +163,12 @@ namespace MasteryLibrary
                 if (entity is EntityAgent && entity.HasBehavior<EntityBehaviorEffects>())
                 {
                     entity.GetBehavior<EntityBehaviorEffects>()?.EffectManager.ClearAllEffects();
+                }
+                if (entity is EntityPlayer player)
+                {
+                    (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
+                    EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
+                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
                 }
             };
         }
