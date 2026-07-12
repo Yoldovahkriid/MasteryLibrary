@@ -138,7 +138,10 @@ namespace MasteryLibrary
                 {
                     (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
                     EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
-                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    if (behavior != null)
+                    {
+                        PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    }
                 }
             };
 
@@ -154,7 +157,10 @@ namespace MasteryLibrary
                 {
                     (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
                     EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
-                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    if(behavior != null)
+                    {
+                        PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    }
                 }
             };
 
@@ -168,7 +174,10 @@ namespace MasteryLibrary
                 {
                     (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player.Player as IServerPlayer);
                     EntityBehaviorPlayerMasteries? behavior = player.GetBehavior<EntityBehaviorPlayerMasteries>();
-                    PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    if (behavior != null)
+                    {
+                        PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
+                    }
                 }
             };
         }
