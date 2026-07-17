@@ -51,16 +51,20 @@ namespace MasteryLibrary.src.Behaviors.EntityBehaviors
         {
             if (EffectManager == null) return;
             string json = entity.Attributes.GetString($"{entity.Api.ModLoader.GetModSystem<MasteryLibraryAPI>()?.Mod.Info.ModID}-EntityEffects", string.Empty);
-            try
+            if (!string.IsNullOrEmpty(json))
             {
-                var states = JsonSerializer.Deserialize<List<EffectState>>(json);
-                if(states != null)
+                try
                 {
-                    EffectManager.FromState(states);
+                    var states = JsonSerializer.Deserialize<List<EffectState>>(json);
+                    if (states != null)
+                    {
+                        EffectManager.FromState(states);
+                    }
                 }
-            } catch (Exception e)
-            {
-                entity.Api.Logger.Error($"[{entity.Api.ModLoader.GetModSystem<MasteryLibraryAPI>()?.Mod.Info.ModID}]Failed to load player mastery data: {e.Message}");
+                catch (Exception e)
+                {
+                    entity.Api.Logger.Error($"[{entity.Api.ModLoader.GetModSystem<MasteryLibraryAPI>()?.Mod.Info.ModID}] Failed to load entity effect data: {e.Message}");
+                }
             }
         }
     }
