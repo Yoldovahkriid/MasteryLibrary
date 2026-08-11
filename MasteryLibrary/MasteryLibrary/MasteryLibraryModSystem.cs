@@ -7,6 +7,7 @@ using MasteryLibrary.src.Core.Effects;
 using MasteryLibrary.src.Core.Effects.DefaultEffects;
 using MasteryLibrary.src.Core.Masteries.Data;
 using MasteryLibrary.src.Core.Masteries.Instances;
+using MasteryLibrary.src.Items;
 using MasteryLibrary.src.Networking;
 using MasteryLibrary.src.Networking.Client;
 using MasteryLibrary.src.Networking.Server;
@@ -53,6 +54,7 @@ namespace MasteryLibrary
             api.RegisterEntityBehaviorClass("PlayerMasteries", typeof(EntityBehaviorPlayerMasteries));
             api.RegisterEntityBehaviorClass("EntityEffects", typeof(EntityBehaviorEffects));
             api.RegisterCollectibleBehaviorClass("CanInflictEffects", typeof(CanInflictEffects));
+            api.RegisterItemClass("SkillItem", typeof(ItemSkillAquirer));
 
             if (!Harmony.HasAnyPatches(Mod.Info.ModID))
             {
