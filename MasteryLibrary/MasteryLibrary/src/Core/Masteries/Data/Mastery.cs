@@ -12,6 +12,7 @@ namespace MasteryLibrary.src.Core.Masteries.Data
         public virtual int MaxLevel { get; } = 10;
         public virtual Dictionary<String, Object> Attributes { get; } = new Dictionary<String, Object>();
         public virtual Dictionary<String, Skill> Skills { get; } = new Dictionary<String, Skill>();
+        public virtual Dictionary<string, int> ExclusiveGroupLimits { get; } = new Dictionary<string, int>();
 
         public virtual bool HasSkill(String skillCode)
         {

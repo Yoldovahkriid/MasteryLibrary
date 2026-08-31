@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
 
 namespace MasteryLibrary.src.Core.Masteries.Instances
 {
@@ -166,14 +167,19 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         private bool ConflictsWithLearntSkills(MasteryInstance mastery, Skill skill)
         {
             if (string.IsNullOrEmpty(skill.ExclusiveGroup)) return false;
+
+            int learntInGroup = 0;
             foreach (var learntskill in mastery.UnlockedSkills.Values)
             {
                 if (learntskill.Skill.ExclusiveGroup == skill.ExclusiveGroup)
-                {
-                    return true;
-                }
+                    learntInGroup++;
             }
-            return false;
+
+            int groupLimit = mastery.Mastery.ExclusiveGroupLimits.TryGetValue(skill.ExclusiveGroup, out var limit)
+                ? limit
+                : 1;
+
+            return learntInGroup >= groupLimit;
         }
 
         public SkillInstance? GetSkillInstance(string skillCode)
