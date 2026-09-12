@@ -5,6 +5,7 @@ using MasteryLibrary.src.Config;
 using MasteryLibrary.src.Core.Abilities;
 using MasteryLibrary.src.Core.Effects;
 using MasteryLibrary.src.Core.Effects.DefaultEffects;
+using MasteryLibrary.src.Core.Events;
 using MasteryLibrary.src.Core.Masteries.Data;
 using MasteryLibrary.src.Core.Masteries.Instances;
 using MasteryLibrary.src.Items;
@@ -24,16 +25,13 @@ using VSImGui;
 
 namespace MasteryLibrary
 {
-    public delegate void MasterySkillEventHandler(MasteryInstance mastery, SkillInstance skill);
-    public delegate void PlayerSkillEventHandler(IServerPlayer player, Skill skill);
-    public delegate void EntityEffectEventHandler(EntityAgent entity, EffectInstance effect);
-
     public class MasteryLibraryAPI : ModSystem
     {
-        public event MasterySkillEventHandler OnSkillUnlocked;
-        public event MasterySkillEventHandler OnSkillLeveledUp;
-        public event PlayerSkillEventHandler OnUniqueSkillAquired;
-        public event EntityEffectEventHandler OnEffectApplied;
+        /// <summary>
+        /// All events raised by the mastery/skill/effect systems. Subscribe via
+        /// api.ModLoader.GetModSystem&lt;MasteryLibraryAPI&gt;().Events.OnSkillUnlocked += ...
+        /// </summary>
+        public MasteryLibraryEvents Events { get; private set; }
         public MasteryDefinitions MasteryDefinitions { get; private set; }
         public EffectRegistry EffectRegistry { get; private set; }
         public AbilityRegistry AbilityRegistry { get; private set; }
@@ -45,6 +43,7 @@ namespace MasteryLibrary
 
         public override void Start(ICoreAPI api)
         {
+            Events = new MasteryLibraryEvents();
             MasteryDefinitions = new MasteryDefinitions(api);
             EffectRegistry = new EffectRegistry();
             AbilityRegistry = new AbilityRegistry();
@@ -62,24 +61,6 @@ namespace MasteryLibrary
                 harmony.PatchAllUncategorized();
             }
         }
-        public void RaiseSkillUnlocked(MasteryInstance mastery, SkillInstance skill)
-        {
-            OnSkillUnlocked?.Invoke(mastery, skill);
-        }
-        public void RaiseSkillLeveledUp(MasteryInstance mastery, SkillInstance skill)
-        {
-            OnSkillLeveledUp?.Invoke(mastery, skill);
-        }
-
-        public void RaiseUniqueSkillAquired(IServerPlayer player, Skill skill)
-        {
-            OnUniqueSkillAquired?.Invoke(player, skill);
-        }
-        public void RaiseEffectApplied(EntityAgent entity, EffectInstance effect)
-        {
-            OnEffectApplied?.Invoke(entity, effect);
-        }
-
         public override void AssetsFinalize(ICoreAPI api)
         {
             string[] targetTags = { "weapon-melee", "weapon-sword", "tool-sword" };

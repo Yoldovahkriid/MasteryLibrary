@@ -15,7 +15,7 @@ namespace MasteryLibrary.src.Core.Effects
         private long listenerId;
         private MasteryLibraryAPI MasteryApi;
 
-        public EffectManager(EntityAgent entity, ICoreAPI api) { this.entity = entity; this.api = api; this.MasteryApi = api.ModLoader.GetModSystem<MasteryLibraryAPI>();}
+        public EffectManager(EntityAgent entity, ICoreAPI api) { this.entity = entity; this.api = api; this.MasteryApi = api.ModLoader.GetModSystem<MasteryLibraryAPI>(); }
 
         public void AddEffect(EffectInstance incoming)
         {
@@ -42,7 +42,7 @@ namespace MasteryLibrary.src.Core.Effects
             string id = $"{instance.Effect.Code}_{Guid.NewGuid()}";
             activeEffects.Add(id, instance);
             instance.Effect.OnApply(instance, entity);
-            MasteryApi.RaiseEffectApplied(entity, instance);
+            MasteryApi.Events.RaiseEffectApplied(entity, instance);
 
             if (listenerId == 0) listenerId = api.Event.RegisterGameTickListener(OnTick, 250);
         }
@@ -71,7 +71,11 @@ namespace MasteryLibrary.src.Core.Effects
 
         private void RemoveEffectInstance(string key, RemovalReason reason)
         {
-            if (activeEffects.Remove(key, out var instance)) instance.Effect.OnRemove(instance, entity, reason);
+            if (activeEffects.Remove(key, out var instance))
+            {
+                instance.Effect.OnRemove(instance, entity, reason);
+                MasteryApi.Events.RaiseEffectRemoved(entity, instance);
+            }
         }
 
         public bool HasEffect(string effectcode)

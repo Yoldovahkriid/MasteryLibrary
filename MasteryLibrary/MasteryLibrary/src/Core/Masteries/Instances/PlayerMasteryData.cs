@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.Server;
 
 namespace MasteryLibrary.src.Core.Masteries.Instances
 {
@@ -23,6 +24,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         public string[] EquippedActiveSkills { get; } = new string[MasteryLibConfigCommon.Loaded.MaxEquippedActiveSkills];
         private MasteryLibraryAPI MasteryLibAPI;
         private IPlayer player;
+        private IServerPlayer ServerPlayer => player as IServerPlayer;
 
         public PlayerMasteryData(ICoreAPI api, IPlayer player)
         {
@@ -36,15 +38,26 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             }
         }
 
+        // Note: This method also allows negative amounts to be passed in, which can be used to reduce experience (e.g., for penalties).
         public void GainExperience(double amount)
         {
-            if (amount <= 0) return;
-            Experience += amount * (MasteryLibConfigCommon.Loaded.GlobalExperienceMultiplier > 0 ? MasteryLibConfigCommon.Loaded.GlobalExperienceMultiplier : 1f);
+            double multiplier = MasteryLibConfigCommon.Loaded.GlobalExperienceMultiplier > 0 ? MasteryLibConfigCommon.Loaded.GlobalExperienceMultiplier : 1f;
+            double gained = amount * multiplier;
+            Experience += gained;
+            MasteryLibAPI.Events.RaiseExperienceGained(ServerPlayer, gained, Experience);
+
             while (Experience >= GetExperienceForNextLevel() && CharacterLevel < MasteryLibConfigCommon.Loaded.MaxPlayerLevel)
             {
                 Experience -= GetExperienceForNextLevel();
+                int previousLevel = CharacterLevel;
                 CharacterLevel++;
-                MasteryPoints += MasteryLibConfigCommon.Loaded.MasteryPointsPerLevel;
+
+                int pointsGained = MasteryLibConfigCommon.Loaded.MasteryPointsPerLevel;
+                MasteryPoints += pointsGained;
+
+                MasteryLibAPI.Events.RaisePlayerLeveledUp(ServerPlayer, CharacterLevel, previousLevel);
+                if (pointsGained > 0) MasteryLibAPI.Events.RaiseMasteryPointsGained(ServerPlayer, pointsGained, MasteryPoints);
+
                 OnDataChanged?.Invoke();
             }
         }
@@ -69,6 +82,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             if (amount <= 0) return;
             BonusMasteryPoints += amount;
             MasteryPoints += amount;
+            MasteryLibAPI.Events.RaiseMasteryPointsGained(ServerPlayer, amount, MasteryPoints);
             OnDataChanged?.Invoke();
         }
 
@@ -82,6 +96,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 EquippedActiveSkills[i] = string.Empty;
             }
 
+            MasteryLibAPI.Events.RaiseMasteriesRespecced(ServerPlayer);
             OnDataChanged?.Invoke();
         }
 
@@ -89,6 +104,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         {
             if (slot < 0 || slot >= EquippedActiveSkills.Length) return;
             EquippedActiveSkills[slot] = skillcode;
+            MasteryLibAPI.Events.RaiseSkillEquipped(ServerPlayer, skillcode, slot);
             OnDataChanged?.Invoke();
         }
 
@@ -114,12 +130,15 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 if (instance.Level < mastery.MaxLevel && TrySpendPoints(cost))
                 {
                     instance.LevelUp();
+                    MasteryLibAPI.Events.RaiseMasteryLeveledUp(ServerPlayer, instance);
                     return true;
                 }
             }
             else if (learntMasteries.Count < MasteryLibConfigCommon.Loaded.MaxLearnableMasteries && TrySpendPoints(1))
             {
-                learntMasteries[masterycode] = new MasteryInstance(Api, mastery);
+                var newInstance = new MasteryInstance(Api, mastery);
+                learntMasteries[masterycode] = newInstance;
+                MasteryLibAPI.Events.RaiseMasteryUnlocked(ServerPlayer, newInstance);
                 return true;
             }
             return false;
@@ -135,13 +154,24 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
 
             if (!masteryInstance.UnlockedSkills.TryGetValue(skillcode, out SkillInstance skillInstance))
             {
-                if (masteryInstance.Level >= skill.RequiredMasteryLevel 
+                if (masteryInstance.Level >= skill.RequiredMasteryLevel
                     && masteryInstance.ArePrerequisitesMet(skill.LevelRequirements.GetValueOrDefault(1) ?? new List<SkillPrerequisite>())
                     && !ConflictsWithLearntSkills(masteryInstance, skill))
                 {
                     if (masteryInstance.UnlockSkill(skill))
                     {
                         if (!skill.IsUnique) MasteryPoints--;
+
+                        if (masteryInstance.UnlockedSkills.TryGetValue(skillcode, out var newSkillInstance))
+                        {
+                            MasteryLibAPI.Events.RaiseSkillUnlocked(ServerPlayer, masteryInstance, newSkillInstance);
+                        }
+
+                        if (skill.IsUnique)
+                        {
+                            MasteryLibAPI.Events.RaiseUniqueSkillAquired(ServerPlayer, skill);
+                        }
+
                         OnDataChanged?.Invoke();
                         return true;
                     }
@@ -159,6 +189,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 if (skillInstance.LevelUp())
                 {
                     MasteryPoints--;
+                    MasteryLibAPI.Events.RaiseSkillLeveledUp(ServerPlayer, masteryInstance, skillInstance);
                     OnDataChanged?.Invoke();
                     return true;
                 }
