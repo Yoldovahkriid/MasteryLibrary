@@ -76,11 +76,6 @@ namespace MasteryLibrary.src.Networking.Server
                 channel.SendPacket(new ActionFailedResponsePacket { Reason = "upgradeskillfailed" }, player);
                 return;
             }
-            if (masteryBehavior.PlayerMasteryData.GetSkillInstance(packet.SkillCode)?.Skill.IsUnique == true)
-            {
-                MasteryLibraryAPI MasteryApi = api.ModLoader.GetModSystem<MasteryLibraryAPI>();
-                MasteryApi?.RaiseUniqueSkillAquired(player, masteryBehavior.PlayerMasteryData.GetSkillInstance(packet.SkillCode)?.Skill);
-            }
             PassiveStatUpdater.UpdatePassivePlayerStats(masteryBehavior);
             SendMasterySyncPacket(player);
         }

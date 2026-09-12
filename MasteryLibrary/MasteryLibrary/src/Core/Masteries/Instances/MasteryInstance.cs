@@ -49,7 +49,6 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             {
                 var instance = new SkillInstance(Api, skill, 1);
                 UnlockedSkills[skill.Code] = instance;
-                Api.ModLoader.GetModSystem<MasteryLibraryAPI>().RaiseSkillUnlocked(this, instance);
                 return true;
             }
             return false;
@@ -60,7 +59,6 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             if (UnlockedSkills.ContainsKey(skillCode))
             {
                 UnlockedSkills[skillCode].LevelUp();
-                Api.ModLoader.GetModSystem<MasteryLibraryAPI>().RaiseSkillLeveledUp(this, UnlockedSkills[skillCode]);
                 return true;
             }
             return false;
