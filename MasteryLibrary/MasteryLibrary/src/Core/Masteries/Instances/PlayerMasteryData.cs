@@ -22,10 +22,12 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         public Action? OnDataChanged;
         public string[] EquippedActiveSkills { get; } = new string[MasteryLibConfigCommon.Loaded.MaxEquippedActiveSkills];
         private MasteryLibraryAPI MasteryLibAPI;
+        private IPlayer player;
 
-        public PlayerMasteryData(ICoreAPI api)
+        public PlayerMasteryData(ICoreAPI api, IPlayer player)
         {
             Api = api;
+            this.player = player;
             MasteryLibAPI = api.ModLoader.GetModSystem<MasteryLibraryAPI>();
 
             for (int i = 0; i < EquippedActiveSkills.Length; i++)

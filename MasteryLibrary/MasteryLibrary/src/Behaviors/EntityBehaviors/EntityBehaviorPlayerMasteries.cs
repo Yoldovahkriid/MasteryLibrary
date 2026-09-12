@@ -17,7 +17,12 @@ namespace MasteryLibrary.src.Behaviors.EntityBehaviors
 
         public EntityBehaviorPlayerMasteries(Entity entity) : base(entity)
         {
-            PlayerMasteryData = new PlayerMasteryData(entity.Api);
+            EntityPlayer player = entity as EntityPlayer;
+            if (player == null)
+            {
+                throw new ArgumentException("EntityBehaviorPlayerMasteries can only be attached to EntityPlayer.");
+            }
+            PlayerMasteryData = new PlayerMasteryData(entity.Api, player.Player);
             MasteryLibAPI = entity.Api.ModLoader.GetModSystem<MasteryLibraryAPI>();
             Api = entity.Api;
         }
