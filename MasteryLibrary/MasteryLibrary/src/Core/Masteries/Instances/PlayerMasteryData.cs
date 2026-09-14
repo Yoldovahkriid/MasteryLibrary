@@ -276,8 +276,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
                 {
                     if (!mastery.Skills.TryGetValue(ss.Code, out var skill)) continue;
                     var skillInst = new SkillInstance(Api, skill, ss.Level,
-                        remainingCooldownMs: ss.RemainingCooldownMs,
-                        currentTime: Api.World.ElapsedMilliseconds);
+                        remainingCooldownMs: ss.RemainingCooldownMs);
                     instance.UnlockedSkills[ss.Code] = skillInst;
                 }
                 learntMasteries[ms.Code] = instance;

@@ -49,7 +49,7 @@ namespace MasteryLibrary.src.Networking.Client
             if (MasteryBehavior == null) return;
             var skill = MasteryBehavior.PlayerMasteryData.GetSkillInstance(packet.SkillCode);
             if (skill == null) return;
-            skill.SetCooldownFromRemaining(packet.RemainingCooldownMs, api.World.ElapsedMilliseconds);
+            skill.SetCooldownFromRemaining(packet.RemainingCooldownMs);
         }
 
         private void HandleActionFailedResponse(ActionFailedResponsePacket packet)

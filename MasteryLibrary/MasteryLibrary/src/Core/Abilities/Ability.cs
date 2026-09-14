@@ -36,14 +36,17 @@ namespace MasteryLibrary.src.Core.Abilities
         public bool Success { get; set; }
         public string Message { get; set; } = "";
         public object Data { get; set; }
-        public AbilityResult(bool success, string message = "", object data = null)
+        public bool? TriggerCooldown { get; set; }
+
+        public AbilityResult(bool success, string message = "", object data = null, bool? triggerCooldown = null)
         {
             Success = success;
             Message = message;
             Data = data;
+            TriggerCooldown = triggerCooldown;
         }
-        public static AbilityResult SuccessResult(string message = "", object data = null) => new AbilityResult(true, message, data);
-        public static AbilityResult FailureResult(string message = "", object data = null) => new AbilityResult(false, message, data);
+        public static AbilityResult SuccessResult(string message = "", object data = null, bool? triggerCooldown = null) => new AbilityResult(true, message, data, triggerCooldown);
+        public static AbilityResult FailureResult(string message = "", object data = null, bool? triggerCooldown = null) => new AbilityResult(false, message, data, triggerCooldown);
     }
 
     public abstract class Ability

@@ -81,9 +81,7 @@ namespace MasteryLibrary.src.UI.Components
                 var sInst = data.GetSkillInstance(skillCode);
                 if (sInst == null) continue;
 
-                long cooldownMs = (long)(sInst.Skill.Cooldown * 1000f);
-                long timeSinceUsed = currentMs - sInst.LastUsedTime;
-                if (cooldownMs > 0 && timeSinceUsed < cooldownMs)
+                if (sInst.IsOnCooldown())
                 {
                     hasCooldown = true;
                     break;
@@ -232,8 +230,9 @@ namespace MasteryLibrary.src.UI.Components
                 // Populated slot
 
                 long cooldownMs = (long)(sInst.Skill.Cooldown * 1000f);
-                long timeSinceUsed = currentMs - sInst.LastUsedTime;
-                bool isOnCooldown = cooldownMs > 0 && timeSinceUsed < cooldownMs;
+                long remainingMs = sInst.GetRemainingCooldownMs();
+                long timeSinceUsed = cooldownMs - remainingMs;
+                bool isOnCooldown = sInst.IsOnCooldown();
 
                 Vector4 slotBgColor = isOnCooldown
                     ? new Vector4(colBgPanel.X * 0.7f, colBgPanel.Y * 0.7f, colBgPanel.Z * 0.7f, colBgPanel.W)

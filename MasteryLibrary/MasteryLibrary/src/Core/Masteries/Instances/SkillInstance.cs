@@ -11,7 +11,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
         public ICoreAPI api { get; private set; }
         public Skill Skill { get; private set; }
         public int Level { get; private set; }
-        public long LastUsedTime { get; private set; } = 0;
+        public long LastUsedTimeUtcMs { get; private set; } = 0;
 
         public SkillInstance(ICoreAPI api, Skill skill, int level = 1)
         {
@@ -20,15 +20,21 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             Level = level;
         }
 
-        public SkillInstance(ICoreAPI api, Skill skill, int level, long remainingCooldownMs, long currentTime)
+        public SkillInstance(ICoreAPI api, Skill skill, int level, long remainingCooldownMs)
         {
             this.api = api;
             Skill = skill;
             Level = level;
-            long cooldownMs = (long)(skill.Cooldown * 1000L);
-            long elapsed = cooldownMs - remainingCooldownMs;
-            LastUsedTime = remainingCooldownMs > 0 ? currentTime - elapsed : 0;
+
+            if (remainingCooldownMs > 0)
+            {
+                long cooldownMs = (long)(skill.Cooldown * 1000L);
+                long elapsed = cooldownMs - remainingCooldownMs;
+                LastUsedTimeUtcMs = NowUtcMs() - elapsed;
+            }
         }
+
+        private static long NowUtcMs() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
         public bool LevelUp()
         {
@@ -42,28 +48,34 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
 
         public bool IsOnCooldown()
         {
-            if (Skill.Cooldown <= 0) return false;
-            long currentTime = api.World.ElapsedMilliseconds;
-            return (currentTime - LastUsedTime) < Skill.Cooldown * 1000;
+            if (Skill.Cooldown <= 0 || LastUsedTimeUtcMs == 0) return false;
+            return (NowUtcMs() - LastUsedTimeUtcMs) < Skill.Cooldown * 1000;
         }
 
         public void UpdateCooldown()
         {
-            LastUsedTime = api.World.ElapsedMilliseconds;
+            LastUsedTimeUtcMs = NowUtcMs();
         }
 
         public long GetRemainingCooldownMs()
         {
-            if (Skill.Cooldown <= 0) return 0;
-            long elapsed = api.World.ElapsedMilliseconds - LastUsedTime;
+            if (Skill.Cooldown <= 0 || LastUsedTimeUtcMs == 0) return 0;
+            long elapsed = NowUtcMs() - LastUsedTimeUtcMs;
             long remaining = (long)(Skill.Cooldown * 1000L) - elapsed;
             return remaining > 0 ? remaining : 0;
         }
-        public void SetCooldownFromRemaining(long remainingMs, long currentTime)
+
+        public void SetCooldownFromRemaining(long remainingMs)
         {
+            if (remainingMs <= 0)
+            {
+                LastUsedTimeUtcMs = 0;
+                return;
+            }
+
             long cooldownMs = (long)(Skill.Cooldown * 1000L);
             long elapsed = cooldownMs - remainingMs;
-            LastUsedTime = currentTime - elapsed;
+            LastUsedTimeUtcMs = NowUtcMs() - elapsed;
         }
     }
 }

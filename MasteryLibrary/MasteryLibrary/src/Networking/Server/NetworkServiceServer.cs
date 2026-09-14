@@ -92,7 +92,7 @@ namespace MasteryLibrary.src.Networking.Server
             SkillInstance? skill = behavior.PlayerMasteryData.GetSkillInstance(skillcode);
             if (skill == null || skill?.Skill.SkillType != EnumSkillType.Active || skill.IsOnCooldown()) return;
 
-            bool AbilityUsed = false;
+            bool shouldTriggerCooldown = false;
             if (!string.IsNullOrEmpty(skill.Skill.Ability))
             {
                 MasteryLibraryAPI MasteryAPI = api.ModLoader.GetModSystem<MasteryLibraryAPI>();
@@ -107,16 +107,17 @@ namespace MasteryLibrary.src.Networking.Server
                         );
 
                     AbilityResult result = MasteryAPI.AbilityRegistry.ActivateAbility(skill.Skill.Ability, context);
-                    AbilityUsed = result.Success;
 
-                    if (!AbilityUsed && !string.IsNullOrEmpty(result.Message))
+                    shouldTriggerCooldown = result.TriggerCooldown ?? result.Success;
+
+                    if (!result.Success && !string.IsNullOrEmpty(result.Message))
                     {
                         api.Logger.Event($"[MasteryLibrary] Ability {skill.Skill.Ability} failed for player {player.PlayerName}: {result.Message}");
                     }
                 }
             }
 
-            if(AbilityUsed)
+            if (shouldTriggerCooldown)
             {
                 skill.UpdateCooldown();
                 channel.SendPacket(new CooldownUpdatePacket
