@@ -1,4 +1,5 @@
 ﻿using MasteryLibrary.src.Behaviors.EntityBehaviors;
+using MasteryLibrary.src.Config;
 using MasteryLibrary.src.Core.Abilities;
 using MasteryLibrary.src.Core.Masteries.Data;
 using MasteryLibrary.src.Core.Masteries.Instances;
@@ -28,6 +29,7 @@ namespace MasteryLibrary.src.Networking.Server
                 .RegisterMessageType<MasteryStateResponsePacket>()
                 .RegisterMessageType<ActionFailedResponsePacket>()
                 .RegisterMessageType<CooldownUpdatePacket>()
+                .RegisterMessageType<ConfigSyncPacket>()
                 .SetMessageHandler<MasteryStateRequestPacket>(HandleMasteryStateRequest)
                 .SetMessageHandler<MasteryUpgradeRequestPacket>(HandleMasteryUpgradeRequest)
                 .SetMessageHandler<SkillUpgradeRequestPacket>(HandleSkillUpgradeRequest)
@@ -47,6 +49,11 @@ namespace MasteryLibrary.src.Networking.Server
             {
                 channel.SendPacket(new MasteryStateResponsePacket { MasteryState = state }, player);
             }
+        }
+
+        public void SendConfigSyncPacket(IServerPlayer player)
+        {
+            channel.SendPacket(new ConfigSyncPacket { Config = MasteryLibConfigCommon.Loaded }, player);
         }
 
         private void HandleMasteryStateRequest(IServerPlayer player, MasteryStateRequestPacket packet)

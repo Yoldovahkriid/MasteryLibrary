@@ -1,4 +1,5 @@
 ﻿using MasteryLibrary.src.Behaviors.EntityBehaviors;
+using MasteryLibrary.src.Config;
 using MasteryLibrary.src.Core.Masteries.Instances;
 using MasteryLibrary.src.Networking.Packets;
 using System;
@@ -26,9 +27,11 @@ namespace MasteryLibrary.src.Networking.Client
                 .RegisterMessageType<MasteryStateResponsePacket>()
                 .RegisterMessageType<ActionFailedResponsePacket>()
                 .RegisterMessageType<CooldownUpdatePacket>()
+                .RegisterMessageType<ConfigSyncPacket>()
                 .SetMessageHandler<MasteryStateResponsePacket>(HandleMasteryStateResponse)
                 .SetMessageHandler<ActionFailedResponsePacket>(HandleActionFailedResponse)
-                .SetMessageHandler<CooldownUpdatePacket>(HandleCooldownUpdate);
+                .SetMessageHandler<CooldownUpdatePacket>(HandleCooldownUpdate)
+                .SetMessageHandler<ConfigSyncPacket>(HandleConfigSyncResponse);
         }
 
         public void RequestMasteryState() => channel.SendPacket(new MasteryStateRequestPacket());
@@ -56,6 +59,12 @@ namespace MasteryLibrary.src.Networking.Client
         {
             string errorCode = packet.Reason ?? "unknownerror";
             api.ShowChatMessage(Lang.Get($"masterylibrary:actionfailed-{errorCode}"));
+        }
+
+        private void HandleConfigSyncResponse(ConfigSyncPacket packet)
+        {
+            if (packet.Config == null) return;
+            MasteryLibConfigCommon.Loaded = packet.Config;
         }
     }
 }

@@ -174,7 +174,7 @@ namespace MasteryLibrary.src.Config
 
     public class MasteryLibConfigClient
     {
-        private const string CONFIG_FILE = "masterylib_client.json";
+        private const string CONFIGFILENAME = "masterylibconfigclient.json";
         public static MasteryLibConfigClient Loaded { get; private set; } = new MasteryLibConfigClient();
 
         public UIThemeConfig Theme { get; set; } = UIThemeConfig.CreateDefault();
@@ -183,7 +183,7 @@ namespace MasteryLibrary.src.Config
         {
             try
             {
-                var cfg = api.LoadModConfig<MasteryLibConfigClient>(CONFIG_FILE);
+                var cfg = api.LoadModConfig<MasteryLibConfigClient>(CONFIGFILENAME);
                 if (cfg != null)
                 {
                     Loaded = cfg;
@@ -209,7 +209,7 @@ namespace MasteryLibrary.src.Config
         {
             try
             {
-                api.StoreModConfig(Loaded, CONFIG_FILE);
+                api.StoreModConfig(Loaded, CONFIGFILENAME);
                 api.Logger.Notification("[MasteryLib] Client config saved.");
             }
             catch (System.Exception ex)

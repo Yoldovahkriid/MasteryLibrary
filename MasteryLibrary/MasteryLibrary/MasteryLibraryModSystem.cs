@@ -7,7 +7,6 @@ using MasteryLibrary.src.Core.Effects;
 using MasteryLibrary.src.Core.Effects.DefaultEffects;
 using MasteryLibrary.src.Core.Events;
 using MasteryLibrary.src.Core.Masteries.Data;
-using MasteryLibrary.src.Core.Masteries.Instances;
 using MasteryLibrary.src.Items;
 using MasteryLibrary.src.Networking;
 using MasteryLibrary.src.Networking.Client;
@@ -27,10 +26,6 @@ namespace MasteryLibrary
 {
     public class MasteryLibraryAPI : ModSystem
     {
-        /// <summary>
-        /// All events raised by the mastery/skill/effect systems. Subscribe via
-        /// api.ModLoader.GetModSystem&lt;MasteryLibraryAPI&gt;().Events.OnSkillUnlocked += ...
-        /// </summary>
         public MasteryLibraryEvents Events { get; private set; }
         public MasteryDefinitions MasteryDefinitions { get; private set; }
         public EffectRegistry EffectRegistry { get; private set; }
@@ -82,6 +77,8 @@ namespace MasteryLibrary
 
             NetworkService = new NetworkServiceServer(api);
 
+            MasteryLibConfigCommon.Load(api);
+
             api.ChatCommands.Create("mastery")
                 .RequiresPrivilege(Privilege.chat)
                 .BeginSubCommand("giveexp")
@@ -105,6 +102,7 @@ namespace MasteryLibrary
             api.Event.PlayerNowPlaying += (IServerPlayer player) =>
             {
                 (this.NetworkService as NetworkServiceServer)?.SendMasterySyncPacket(player);
+                (this.NetworkService as NetworkServiceServer)?.SendConfigSyncPacket(player);
                 EntityBehaviorPlayerMasteries? behavior = player.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
                 PassiveStatUpdater.UpdatePassivePlayerStats(behavior);
             };
@@ -143,6 +141,8 @@ namespace MasteryLibrary
             base.StartClientSide(api);
 
             NetworkService = new NetworkServiceClient(api);
+
+            MasteryLibConfigClient.Load(api);
 
             MasteryWindow = new MasteryGUIWindow(api, this.NetworkService as NetworkServiceClient);
             CustomisationWindow = new UICustomizationWindow(api);

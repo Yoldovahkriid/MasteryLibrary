@@ -72,7 +72,7 @@ namespace MasteryLibrary.src.Core.Masteries.Instances
             double result = 0f;
             for (int i = 0; i < coefficients.Length; i++)
             {
-                result += coefficients[i] * Math.Pow(CharacterLevel, degree - i);
+                result += coefficients[i] * Math.Pow(CharacterLevel-1, degree - i);
             }
             return result;
         }

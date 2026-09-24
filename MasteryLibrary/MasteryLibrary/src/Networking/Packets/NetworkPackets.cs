@@ -1,4 +1,5 @@
-﻿using MasteryLibrary.src.Core.Masteries.Instances;
+﻿using MasteryLibrary.src.Config;
+using MasteryLibrary.src.Core.Masteries.Instances;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -60,5 +61,12 @@ namespace MasteryLibrary.src.Networking.Packets
         public required string SkillCode;
         [ProtoMember(2)] 
         public long RemainingCooldownMs;
+    }
+
+    [ProtoContract]
+    public class ConfigSyncPacket
+    {
+        [ProtoMember(1)]
+        public required MasteryLibConfigCommon Config;
     }
 }
