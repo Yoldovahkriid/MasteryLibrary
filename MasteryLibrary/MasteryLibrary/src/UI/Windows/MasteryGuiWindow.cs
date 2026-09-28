@@ -56,7 +56,37 @@ namespace MasteryLibrary.src.UI.Windows
             this.network = network;
         }
 
-        public void Toggle() => opened = !opened;
+        // VSImGui runs with ImGui multi-viewport enabled. A tooltip that doesn't fit inside the game window
+        // gets promoted to its own OS window, which steals focus, and a fullscreen game window then
+        // auto-minimises. Pinning the tooltip to the main viewport keeps it inside the game window.
+        private static void BeginTooltipInMainViewport()
+        {
+            ImGui.SetNextWindowViewport(ImGui.GetMainViewport().ID);
+            ImGui.BeginTooltip();
+
+            // Tooltips auto-size to their widest non-wrapping line. With a short title, wrapped
+            // description text ends up squeezed into a very narrow, very tall box. Give wrapped text
+            // a fixed maximum width so every tooltip gets a consistent, readable width.
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * TooltipWrapEm);
+        }
+
+        private static void EndTooltipWrapped()
+        {
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+
+        // Max tooltip text width in font-height units (~400px at a 16px font). Tweak to taste.
+        private const float TooltipWrapEm = 25f;
+        public void Toggle()
+        {
+            opened = !opened;
+            if (!opened)
+            {
+                draggedSkillCode = null;
+                dragSourceSlot = -1;
+            }
+        }
         public bool IsOpen => opened;
 
         public void Dispose()
@@ -83,7 +113,15 @@ namespace MasteryLibrary.src.UI.Windows
             bool keepOpen = true;
             ImGui.Begin(Lang.Get("masterylibrary:window-title") + "##masterywin",
                         ref keepOpen, ImGuiWindowFlags.NoCollapse);
-            if (!keepOpen) opened = false;
+            if (!keepOpen)
+            {
+                opened = false;
+                draggedSkillCode = null;
+                dragSourceSlot = -1;
+                ImGui.End();
+                PopTheme();
+                return CallbackGUIStatus.Closed;
+            }
 
             var behavior = capi.World.Player?.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
             if (behavior == null)
@@ -408,10 +446,10 @@ namespace MasteryLibrary.src.UI.Windows
             if (isDragging)
             {
                 ImGui.SetNextWindowBgAlpha(0.80f);
-                ImGui.BeginTooltip();
+                BeginTooltipInMainViewport();
                 ImGui.TextColored(C_Gold, si.Skill.GetDisplayName(si.Level));
                 ImGui.TextColored(C_TxtHnt, Lang.Get("masterylibrary:equip-drag-release-hint"));
-                ImGui.EndTooltip();
+                EndTooltipWrapped();
             }
 
             // Tooltip on hover (not dragging)
@@ -512,16 +550,16 @@ namespace MasteryLibrary.src.UI.Windows
                     if (si != null) DrawSkillTooltip(si);
                     else
                     {
-                        ImGui.BeginTooltip();
+                        BeginTooltipInMainViewport();
                         ImGui.TextColored(C_TxtHnt, Lang.Get("masterylibrary:equip-slot-unknown"));
-                        ImGui.EndTooltip();
+                        EndTooltipWrapped();
                     }
                 }
                 else
                 {
-                    ImGui.BeginTooltip();
+                    BeginTooltipInMainViewport();
                     ImGui.TextColored(C_TxtHnt, Lang.Get("masterylibrary:equip-slot-empty"));
-                    ImGui.EndTooltip();
+                    EndTooltipWrapped();
                 }
             }
 
@@ -934,7 +972,7 @@ namespace MasteryLibrary.src.UI.Windows
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                BeginTooltipInMainViewport();
                 ImGui.TextColored(isUnique ? C_Uniq : C_Gold, skill.GetDisplayName(curSkillLevel));
                 if (isUnique) ImGui.TextColored(C_UniqDim, Lang.Get("masterylibrary:skill-tooltip-unique-tag"));
                 string skillDesc = skill.GetDescription(curSkillLevel);
@@ -968,7 +1006,7 @@ namespace MasteryLibrary.src.UI.Windows
                 else
                     ImGui.TextColored(C_TxtMut, Lang.Get("masterylibrary:skill-tooltip-required-rank", skill.RequiredMasteryLevel));
 
-                ImGui.EndTooltip();
+                EndTooltipWrapped();
             }
 
             // Level label under icon
@@ -987,7 +1025,7 @@ namespace MasteryLibrary.src.UI.Windows
 
         private void DrawSkillTooltip(SkillInstance si)
         {
-            ImGui.BeginTooltip();
+            BeginTooltipInMainViewport();
             ImGui.TextColored(si.Skill.IsUnique ? C_Uniq : C_Gold, si.Skill.GetDisplayName(si.Level));
             string d = si.Skill.GetDescription(si.Level);
             if (si.Level > 0 && !string.IsNullOrEmpty(d)) ImGui.TextWrapped(d);
@@ -1017,7 +1055,7 @@ namespace MasteryLibrary.src.UI.Windows
             if (si.Skill.Cooldown > 0)
                 ImGui.TextColored(C_TxtHnt,
                     Lang.Get("masterylibrary:skill-cooldown", si.Skill.Cooldown));
-            ImGui.EndTooltip();
+            EndTooltipWrapped();
         }
 
         private void DrawCornerBrackets(ImDrawListPtr dl, Vector2 min, Vector2 max, Vector4 color, float len)
