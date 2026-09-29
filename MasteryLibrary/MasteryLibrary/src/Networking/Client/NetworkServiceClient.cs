@@ -14,6 +14,8 @@ namespace MasteryLibrary.src.Networking.Client
     {
         private readonly ICoreClientAPI api;
         public IClientNetworkChannel channel;
+        // Doesnt need to be in the event class its solely for internal use
+        public event Action<XpPopUpPacket>? XpGained;
 
         public NetworkServiceClient(ICoreClientAPI api)
         {
@@ -28,10 +30,12 @@ namespace MasteryLibrary.src.Networking.Client
                 .RegisterMessageType<ActionFailedResponsePacket>()
                 .RegisterMessageType<CooldownUpdatePacket>()
                 .RegisterMessageType<ConfigSyncPacket>()
+                .RegisterMessageType<XpPopUpPacket>()
                 .SetMessageHandler<MasteryStateResponsePacket>(HandleMasteryStateResponse)
                 .SetMessageHandler<ActionFailedResponsePacket>(HandleActionFailedResponse)
                 .SetMessageHandler<CooldownUpdatePacket>(HandleCooldownUpdate)
-                .SetMessageHandler<ConfigSyncPacket>(HandleConfigSyncResponse);
+                .SetMessageHandler<ConfigSyncPacket>(HandleConfigSyncResponse)
+                .SetMessageHandler<XpPopUpPacket>(HandleXpPopUp);
         }
 
         public void RequestMasteryState() => channel.SendPacket(new MasteryStateRequestPacket());
@@ -65,6 +69,11 @@ namespace MasteryLibrary.src.Networking.Client
         {
             if (packet.Config == null) return;
             MasteryLibConfigCommon.Loaded = packet.Config;
+        }
+
+        private void HandleXpPopUp(XpPopUpPacket packet)
+        {
+            XpGained?.Invoke(packet);
         }
     }
 }

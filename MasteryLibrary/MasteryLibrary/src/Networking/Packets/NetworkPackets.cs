@@ -4,6 +4,7 @@ using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Vintagestory.API.Common;
 
 namespace MasteryLibrary.src.Networking.Packets
 {
@@ -68,5 +69,26 @@ namespace MasteryLibrary.src.Networking.Packets
     {
         [ProtoMember(1)]
         public required MasteryLibConfigCommon Config;
+    }
+
+    public enum EnumXpImageSourceType
+    {
+        Item,
+        Block,
+        Entity,
+        Image
+    }
+
+    [ProtoContract]
+    public class XpPopUpPacket
+    {
+        [ProtoMember(1)]
+        public required float XpGained;
+        [ProtoMember(2)]
+        public required EnumXpImageSourceType DisplayType;
+        [ProtoMember(3)]
+        public required string DisplayText;
+        [ProtoMember(4)]
+        public required AssetLocation Source;
     }
 }

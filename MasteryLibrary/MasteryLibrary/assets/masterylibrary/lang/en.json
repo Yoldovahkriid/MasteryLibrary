@@ -45,5 +45,7 @@
   "masterylib:hotkey-toggle-hotbar": "Toggle Ability Hotbar Visibility",
   "masterylib:hotkey-use-active-skill": "Use Skill in Slot {0}",
 
-  "masterylib:gridrecipe-requiresskill": "Requires Skill: {0} (Level: {1})"
+  "masterylib:gridrecipe-requiresskill": "Requires Skill: {0} (Level: {1})",
+
+  "masterylib:xppopup-gained": "+{0} XP"
 }

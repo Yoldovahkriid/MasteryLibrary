@@ -34,6 +34,7 @@ namespace MasteryLibrary
         private MasteryGUIWindow MasteryWindow { get; set; }
         private AbilityHotbarGUI AbilityHotbar { get; set; }
         private UICustomizationWindow CustomisationWindow { get; set; }
+        private XpPopupGUI XPPopup { get; set; }
         private Harmony? harmony;
 
         public override void Start(ICoreAPI api)
@@ -147,6 +148,7 @@ namespace MasteryLibrary
             MasteryWindow = new MasteryGUIWindow(api, this.NetworkService as NetworkServiceClient);
             CustomisationWindow = new UICustomizationWindow(api);
             AbilityHotbar = new AbilityHotbarGUI(api, this.NetworkService as NetworkServiceClient);
+            XPPopup = new XpPopupGUI(api, this.NetworkService as NetworkServiceClient);
 
             ImGuiModSystem? guiModSystem = api.ModLoader.GetModSystem<ImGuiModSystem>();
             if (guiModSystem != null)
@@ -202,6 +204,7 @@ namespace MasteryLibrary
         public override void Dispose()
         {
             harmony?.UnpatchAll($"{Mod.Info.ModID}");
+            XPPopup?.Dispose();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace MasteryLibrary.src.Networking.Server
                 .RegisterMessageType<ActionFailedResponsePacket>()
                 .RegisterMessageType<CooldownUpdatePacket>()
                 .RegisterMessageType<ConfigSyncPacket>()
+                .RegisterMessageType<XpPopUpPacket>()
                 .SetMessageHandler<MasteryStateRequestPacket>(HandleMasteryStateRequest)
                 .SetMessageHandler<MasteryUpgradeRequestPacket>(HandleMasteryUpgradeRequest)
                 .SetMessageHandler<SkillUpgradeRequestPacket>(HandleSkillUpgradeRequest)
@@ -54,6 +55,11 @@ namespace MasteryLibrary.src.Networking.Server
         public void SendConfigSyncPacket(IServerPlayer player)
         {
             channel.SendPacket(new ConfigSyncPacket { Config = MasteryLibConfigCommon.Loaded }, player);
+        }
+
+        public void SendXpPopUpPacket(IServerPlayer player, float xpGained, EnumXpImageSourceType displayType, string displayText, string displayImage)
+        {
+            channel.SendPacket(new XpPopUpPacket { XpGained = xpGained, DisplayType = displayType, DisplayText = displayText, Source = displayImage }, player);
         }
 
         private void HandleMasteryStateRequest(IServerPlayer player, MasteryStateRequestPacket packet)
