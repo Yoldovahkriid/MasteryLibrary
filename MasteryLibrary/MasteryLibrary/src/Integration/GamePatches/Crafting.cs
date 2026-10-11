@@ -6,6 +6,7 @@ using MasteryLibrary.src.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -17,52 +18,79 @@ namespace MasteryLibrary.src.Integration.GamePatches
     [HarmonyPatch]
     public static class GridRecipePatches
     {
+        private sealed class SkillRequirement
+        {
+            public string? RequiredSkill;
+            public int RequiredLevel;
+
+            public string? ScalesWithSkill;
+            public StatConfiguration? OutputScaling;
+        }
+
+        private static readonly SkillRequirement None = new();
+        private static readonly ConditionalWeakTable<RecipeBase, SkillRequirement> Cache = new();
+
+        private static SkillRequirement GetRequirement(RecipeBase recipe)
+        {
+            if (Cache.TryGetValue(recipe, out var cached)) return cached;
+
+            var attrs = recipe.Attributes;
+            SkillRequirement result = None;
+
+            if (attrs != null && attrs.Exists)
+            {
+                string? req = attrs["requiresSkill"]?.AsString();
+                string? scales = attrs["scalesWithSkill"]?.AsString();
+
+                if (!string.IsNullOrEmpty(req) || !string.IsNullOrEmpty(scales))
+                {
+                    result = new SkillRequirement
+                    {
+                        RequiredSkill = string.IsNullOrEmpty(req) ? null : req,
+                        RequiredLevel = attrs["requiresLevel"]?.AsInt(1) ?? 1,
+                        ScalesWithSkill = string.IsNullOrEmpty(scales) ? null : scales,
+                        OutputScaling = string.IsNullOrEmpty(scales)
+                            ? null
+                            : attrs["outputScaling"]?.AsObject<StatConfiguration>()
+                    };
+                }
+            }
+
+            Cache.Add(recipe, result);
+            return result;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GridRecipe), nameof(GridRecipe.Matches))]
         public static void MatchesPostfix(GridRecipe __instance, IPlayer forPlayer, ref bool __result)
         {
             if (!__result || forPlayer == null) return;
 
-            string? requiredSkill = __instance.Attributes?["requiresSkill"].AsString();
-            if (string.IsNullOrEmpty(requiredSkill)) return; 
-            int requiredLevel = __instance.Attributes?["requiresLevel"]?.AsInt(1) ?? 1;
+            var req = GetRequirement(__instance);
+            if (req.RequiredSkill == null) return;
 
+            var masteries = forPlayer.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
+            var skill = masteries?.PlayerMasteryData.GetSkillInstance(req.RequiredSkill);
 
-            EntityBehaviorPlayerMasteries? masteries = forPlayer.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
-            if (masteries == null)
-            {
+            if (skill == null || skill.Level < req.RequiredLevel)
                 __result = false;
-                return;
-            }
-
-            SkillInstance? skill = masteries.PlayerMasteryData.GetSkillInstance(requiredSkill);
-            if (skill == null || skill.Level < requiredLevel)
-            {
-                __result = false;
-            }
         }
 
-                [HarmonyPostfix]
-        [HarmonyPatch(typeof(RecipeBase), nameof(RecipeBase.GenerateOutputStack))]
-        public static void Postfix(RecipeBase __instance, ItemSlot[] inputSlots, ItemSlot outputSlot)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GridRecipe), nameof(GridRecipe.GenerateOutputStack))]
+        public static void Postfix(GridRecipe __instance, ItemSlot[] inputSlots, ItemSlot outputSlot)
         {
             if (outputSlot.Itemstack == null) return;
 
-            IPlayer? player = GetPlayerFromSlots(inputSlots);
-            if (player == null) return;
+            var req = GetRequirement(__instance);
+            if (req.ScalesWithSkill == null || req.OutputScaling == null) return;
 
-            EntityBehaviorPlayerMasteries? masteries = player.Entity
-                .GetBehavior<EntityBehaviorPlayerMasteries>();
-            if (masteries == null) return;
+            var player = GetPlayerFromSlots(inputSlots);
+            var masteries = player?.Entity?.GetBehavior<EntityBehaviorPlayerMasteries>();
+            var skill = masteries?.PlayerMasteryData.GetSkillInstance(req.ScalesWithSkill);
+            if (skill == null) return;
 
-            string? requiredSkill = __instance.Attributes?["scalesWithSkill"].AsString();
-            StatConfiguration? statConfig = __instance.Attributes?["outputScaling"].AsObject<StatConfiguration>();
-
-            if (string.IsNullOrEmpty(requiredSkill)) return;
-            SkillInstance? skill = masteries.PlayerMasteryData.GetSkillInstance(requiredSkill);
-            if (skill == null || statConfig == null) return;
-
-            int scaled = (int)StatScalingUtil.GetScaledValue(statConfig, skill.Level);
+            int scaled = (int)StatScalingUtil.GetScaledValue(req.OutputScaling, skill.Level);
             outputSlot.Itemstack.StackSize = Math.Max(1, scaled);
         }
 
